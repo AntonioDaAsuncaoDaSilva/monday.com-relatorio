@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Relatórios — PA 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/monday-sdk-js/dist/main.js"></script>
+
+  <style>
+    /* ============================================================
+       CSS VARIABLES
+    ============================================================ */
+    :root {
+      --brand:     #14304A;
+      --brand-mid: #1F4A72;
+      --gold:      #C8963E;
+      --success:   #2D7D52;
+      --warning:   #F5A623;
+      --danger:    #B03030;
+      --border:    #DCE3EC;
+      --bg:        #F5F7FA;
+      --text:      #1A2332;
+      --text-muted:#5B6B80;
+      --topbar-h:  56px;
+      --sidebar-w: 300px;
+    }
+
+    /* ============================================================
+       RESET / BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Inter Tight', sans-serif; background: var(--bg); color: var(--text); }
+    button { cursor: pointer; font-family: inherit; }
+    select { font-family: inherit; }
+
+    /* ============================================================
+       TOPBAR
+    ============================================================ */
+    #topbar {
+      position: sticky; top: 0; z-index: 100;
+      height: var(--topbar-h);
+      background: var(--brand);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-logo {
+      width: 32px; height: 32px; border-radius: 6px;
+      background: rgba(255,255,255,.15);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .topbar-logo img { width: 28px; height: 28px; object-fit: contain; }
+    .topbar-title { color: #fff; font-size: 15px; font-weight: 600; }
+    .topbar-sub { color: rgba(255,255,255,.55); font-size: 12px; margin-left: 4px; }
+    .topbar-right { display: flex; gap: 8px; }
+    .tb-btn {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff; border-radius: 6px;
+      padding: 6px 12px; font-size: 12px; font-weight: 500;
+      transition: background .15s;
+    }
+    .tb-btn:hover { background: rgba(255,255,255,.22); }
+
+    /* ============================================================
+       BODY LAYOUT
+    ============================================================ */
+    #layout {
+      display: flex;
+      height: calc(100vh - var(--topbar-h));
+      overflow: hidden;
+    }
+
+    /* ============================================================
+       MAIN COLUMN
+    ============================================================ */
+    #main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ============================================================
+       SELECTOR BAR
+    ============================================================ */
+    #selector-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .sel-group { display: flex; flex-direction: column; gap: 4px; }
+    .sel-group label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+    .sel-group select {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+    }
+    .sel-group select:focus { border-color: var(--brand-mid); }
+
+    /* ============================================================
+       STATS BAR
+    ============================================================ */
+    #stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .stat-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+    .stat-value { font-size: 24px; font-weight: 700; color: var(--brand); font-family: 'Fraunces', serif; }
+    .stat-sub { font-size: 11px; color: var(--text-muted); }
+
+    /* ============================================================
+       REPORT HEADER
+    ============================================================ */
+    #report-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-mid) 100%);
+      border-radius: 10px;
+      padding: 20px 24px;
+      color: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .rh-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; }
+    .rh-sub { font-size: 12px; color: rgba(255,255,255,.65); margin-top: 3px; }
+    .rh-badge {
+      background: rgba(200,150,62,.2);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px; font-weight: 600;
+    }
+
+    /* ============================================================
+       IMAGE ZONE
+    ============================================================ */
+    #image-zone {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .iz-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .iz-title { font-size: 13px; font-weight: 600; color: var(--text); }
+    .iz-hint { font-size: 11px; color: var(--text-muted); }
+    .iz-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+    .iz-thumb {
+      width: 90px; height: 68px;
+      border: 2px solid var(--border);
+      border-radius: 6px; overflow: hidden;
+      position: relative; cursor: pointer;
+      transition: border-color .15s;
+    }
+    .iz-thumb:hover { border-color: var(--brand-mid); }
+    .iz-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .iz-thumb .iz-del {
+      position: absolute; top: 2px; right: 2px;
+      background: rgba(0,0,0,.55);
+      color: #fff; border: none; border-radius: 50%;
+      width: 18px; height: 18px; font-size: 10px;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .15s;
+    }
+    .iz-thumb:hover .iz-del { opacity: 1; }
+    .iz-add {
+      width: 90px; height: 68px;
+      border: 2px dashed var(--border);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 4px;
+      color: var(--text-muted); font-size: 11px;
+      cursor: pointer; background: var(--bg);
+      transition: border-color .15s, color .15s;
+    }
+    .iz-add:hover { border-color: var(--brand-mid); color: var(--brand-mid); }
+    .iz-add-icon { font-size: 20px; line-height: 1; }
+    #img-input { display: none; }
+
+    /* ============================================================
+       COL TOGGLE PANEL
+    ============================================================ */
+    #col-panel {
+      position: fixed; top: 70px; right: 16px;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px;
+      width: 220px; z-index: 90;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      display: none;
+    }
+    #col-panel.open { display: block; }
+    .cp-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-bottom: 10px; }
+    .cp-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+    .cp-row label { font-size: 13px; color: var(--text); cursor: pointer; }
+    .cp-row input[type=checkbox] { accent-color: var(--brand-mid); }
+
+    /* ============================================================
+       DATA TABLE
+    ============================================================ */
+    #data-section {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .ds-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .ds-title { font-size: 13px; font-weight: 600; }
+    #data-table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th {
+      background: var(--bg); color: var(--text-muted);
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em;
+      padding: 10px 12px; text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(31,74,114,.04); }
+    .badge {
+      display: inline-block; border-radius: 20px;
+      padding: 2px 10px; font-size: 11px; font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-success { background: rgba(45,125,82,.12); color: var(--success); }
+    .badge-warning { background: rgba(245,166,35,.12); color: #c47a00; }
+    .badge-danger  { background: rgba(176,48,48,.12);  color: var(--danger); }
+    .badge-neutral { background: rgba(91,107,128,.1);  color: var(--text-muted); }
+    .prog-bar-wrap { width: 80px; background: var(--border); border-radius: 20px; height: 6px; margin-top: 4px; }
+    .prog-bar { height: 6px; border-radius: 20px; background: var(--brand-mid); }
+    td.no-data { text-align: center; padding: 24px; color: var(--text-muted); font-style: italic; }
+
+    /* ============================================================
+       SUMMARY SECTION
+    ============================================================ */
+    #summary-section {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .sum-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+    #summary-text { font-size: 13px; line-height: 1.7; color: var(--text); white-space: pre-wrap; }
+
+    /* ============================================================
+       SIDEBAR
+    ============================================================ */
+    #sidebar {
+      width: var(--sidebar-w);
+      background: #fff;
+      border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .sb-head {
+      padding: 16px; border-bottom: 1px solid var(--border);
+      font-size: 13px; font-weight: 600;
+    }
+    #history-list {
+      flex: 1; overflow-y: auto;
+      padding: 8px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .hist-item {
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .hist-item:hover { border-color: var(--brand-mid); background: rgba(31,74,114,.03); }
+    .hist-item-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hist-item-date { font-size: 11px; color: var(--text-muted); }
+    .hist-item-link { font-size: 11px; color: var(--brand-mid); text-decoration: none; display: inline-block; margin-top: 3px; }
+    .hist-item-link:hover { text-decoration: underline; }
+    .hist-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 20px 8px; font-style: italic; }
+    .sb-actions {
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .sb-btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px; font-weight: 600;
+      border: none;
+      transition: opacity .15s, transform .1s;
+    }
+    .sb-btn:hover { opacity: .88; transform: translateY(-1px); }
+    .sb-btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-gold    { background: var(--gold);  color: #fff; }
+
+    /* ============================================================
+       GENERATE DIALOG
+    ============================================================ */
+    #gen-dialog {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(20,48,74,.55); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+    }
+    #gen-dialog.open { display: flex; }
+    .gd-box {
+      background: #fff; border-radius: 14px;
+      padding: 28px 32px; width: 400px; max-width: 95vw;
+      text-align: center;
+      box-shadow: 0 16px 48px rgba(0,0,0,.2);
+    }
+    .gd-icon { font-size: 36px; margin-bottom: 12px; }
+    .gd-title { font-size: 17px; font-weight: 700; color: var(--brand); margin-bottom: 6px; }
+    .gd-step { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; min-height: 20px; }
+    .gd-actions { display: flex; gap: 10px; justify-content: center; }
+    .gd-btn {
+      padding: 9px 22px; border-radius: 8px;
+      font-size: 13px; font-weight: 600; border: none;
+      transition: opacity .15s;
+    }
+    .gd-btn:hover { opacity: .85; }
+    .gd-btn-primary { background: var(--brand); color: #fff; }
+    .gd-btn-cancel  { background: var(--border); color: var(--text); }
+    .gd-progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; }
+    .gd-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background .3s; }
+    .gd-dot.active { background: var(--brand-mid); }
+
+    /* ============================================================
+       PRESENTATION MODAL
+    ============================================================ */
+    #pres-modal {
+      position: fixed; inset: 0; z-index: 300;
+      background: #0D1B2A;
+      display: none; flex-direction: column;
+    }
+    #pres-modal.open { display: flex; }
+    .pm-controls {
+      background: rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      padding: 10px 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .pm-btn {
+      padding: 7px 16px; border-radius: 6px;
+      font-size: 13px; font-weight: 600; border: none;
+      cursor: pointer; transition: background .15s;
+    }
+    .pm-btn-close  { background: var(--danger);   color: #fff; }
+    .pm-btn-nav    { background: rgba(255,255,255,.15); color: #fff; }
+    .pm-btn-nav:hover { background: rgba(255,255,255,.25); }
+    .pm-btn-print  { background: var(--gold); color: #fff; margin-left: auto; }
+    .pm-counter { color: rgba(255,255,255,.65); font-size: 13px; min-width: 60px; text-align: center; }
+    .pm-slide-area {
+      flex: 1; overflow-y: auto;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+
+    /* ============================================================
+       SLIDE (PPT REPLICA)
+    ============================================================ */
+    .slide {
+      width: 960px; max-width: 100%;
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,.45);
+      display: flex; flex-direction: column;
+    }
+    .slide-top-accent { height: 5px; background: var(--gold); }
+    .slide-body { display: flex; flex: 1; min-height: 480px; }
+    .slide-left {
+      width: 280px; flex-shrink: 0;
+      background: var(--brand);
+      padding: 28px 22px;
+      display: flex; flex-direction: column;
+      gap: 16px;
+    }
+    .sl-project-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--gold); margin-bottom: 2px;
+    }
+    .sl-project-title {
+      font-family: 'Fraunces', serif;
+      font-size: 17px; font-weight: 600;
+      color: #fff; line-height: 1.4;
+    }
+    .sl-divider { height: 2px; background: rgba(200,150,62,.3); border-radius: 1px; }
+    /* Carousel */
+    .sl-carousel { flex: 1; position: relative; border-radius: 6px; overflow: hidden; background: rgba(255,255,255,.07); min-height: 120px; }
+    .sl-car-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .sl-car-img.active { display: block; }
+    .sl-car-empty {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.3); font-size: 12px; min-height: 120px;
+    }
+    .sl-car-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,.4); color: #fff;
+      border: none; border-radius: 50%; width: 26px; height: 26px;
+      font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .sl-car-nav:hover { background: rgba(0,0,0,.65); }
+    .sl-car-prev { left: 4px; }
+    .sl-car-next { right: 4px; }
+    .sl-car-dots {
+      position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 5px;
+    }
+    .sl-car-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,255,255,.35); border: none; cursor: pointer; padding: 0;
+      transition: background .2s;
+    }
+    .sl-car-dot.active { background: var(--gold); }
+
+    /* Slide right */
+    .slide-right { flex: 1; padding: 20px 24px; overflow: hidden; }
+    .sr-heading {
+      display: grid; font-size: 9px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .07em;
+      color: var(--text-muted); border-bottom: 2px solid var(--brand);
+      padding-bottom: 6px; margin-bottom: 10px;
+    }
+    .sr-row {
+      display: grid; padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: start; gap: 8px;
+      font-size: 11.5px;
+    }
+    .sr-row:last-child { border-bottom: none; }
+    .sr-meta-label { font-size: 10px; font-weight: 600; color: var(--text-muted); }
+    .sr-meta-val { font-size: 12px; font-weight: 600; color: var(--text); }
+
+    /* Slide footer */
+    .slide-footer {
+      background: var(--brand);
+      padding: 10px 22px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sf-left { display: flex; align-items: center; gap: 10px; }
+    .sf-logo { height: 26px; filter: brightness(0) invert(1); opacity: .9; }
+    .sf-addr { font-size: 9px; color: rgba(255,255,255,.55); line-height: 1.4; }
+    .sf-right { display: flex; align-items: center; gap: 10px; }
+    .sf-logo-sm { height: 20px; filter: brightness(0) invert(1); opacity: .7; }
+
+    /* ============================================================
+       LOADING / EMPTY STATES
+    ============================================================ */
+    .loading-row td { text-align: center; padding: 30px; color: var(--text-muted); }
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 3px solid var(--border);
+      border-top-color: var(--brand-mid);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .dev-banner {
+      background: rgba(200,150,62,.1);
+      border: 1px solid var(--gold);
+      border-radius: 8px; padding: 10px 14px;
+      font-size: 12px; color: #7a5800;
+      display: none;
+    }
+    .dev-banner.visible { display: block; }
+
+    /* ============================================================
+       PRINT STYLES
+    ============================================================ */
+    @media print {
+      body.printing * { visibility: hidden; }
+      body.printing #pres-modal,
+      body.printing #pres-modal * { visibility: visible; }
+      body.printing #pres-modal { position: absolute; inset: 0; background: #fff; display: block !important; }
+      body.printing .pm-controls { display: none !important; }
+      body.printing .pm-slide-area { display: block; padding: 0; overflow: visible; }
+      body.printing .slide { width: 100%; max-width: none; box-shadow: none; border-radius: 0; page-break-after: always; break-after: page; }
+      body.printing .slide:last-child { page-break-after: auto; break-after: auto; }
+      body.printing .pm-btn { display: none !important; }
+      .slide-for-print { display: block !important; }
+      .slide-hidden-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOPBAR
+============================================================ -->
+<div id="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">
+      <img src="assets/branding/ggpen-logo.png" alt="Logo" onerror="this.style.display='none'" />
+    </div>
+    <span class="topbar-title">Gerador de Relatórios</span>
+    <span class="topbar-sub">| Workspace: PA 2026</span>
+  </div>
+  <div class="topbar-right">
+    <button class="tb-btn" onclick="toggleColPanel()">&#9635; Colunas</button>
+    <button class="tb-btn" onclick="printReport()">&#128438; Imprimir/PDF</button>
+    <button class="tb-btn" onclick="reloadData()">&#8635; Recarregar</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     COLUMN TOGGLE PANEL
+============================================================ -->
+<div id="col-panel">
+  <div class="cp-title">Colunas Visíveis</div>
+  <div id="col-checkboxes"></div>
+</div>
+
+<!-- ============================================================
+     BODY LAYOUT
+============================================================ -->
+<div id="layout">
+
+  <!-- MAIN COLUMN -->
+  <div id="main">
+
+    <!-- Dev mode banner -->
+    <div class="dev-banner" id="dev-banner">
+      Modo desenvolvimento — Monday SDK não disponível ou sem contexto de workspace.
+    </div>
+
+    <!-- SELECTOR BAR -->
+    <div id="selector-bar">
+      <div class="sel-group">
+        <label>Programa</label>
+        <select id="program-sel" onchange="onProgramChange()">
+          <option value="">— Seleccionar programa —</option>
+        </select>
+      </div>
+      <div class="sel-group">
+        <label>Projecto</label>
+        <select id="project-sel" onchange="onProjectChange()">
+          <option value="">— Seleccionar projecto —</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- STATS BAR -->
+    <div id="stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">Total Metas</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-sub">itens no quadro</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Progresso Médio</div>
+        <div class="stat-value" id="stat-prog">—</div>
+        <div class="stat-sub">média ponderada</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Metas Concluídas</div>
+        <div class="stat-value" id="stat-done">—</div>
+        <div class="stat-sub">feitas / total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Estado Geral</div>
+        <div class="stat-value" id="stat-state" style="font-size:14px;margin-top:4px;">—</div>
+        <div class="stat-sub" id="stat-state-sub"></div>
+      </div>
+    </div>
+
+    <!-- REPORT HEADER -->
+    <div id="report-header">
+      <div>
+        <div class="rh-title" id="rh-title">Seleccione um projecto</div>
+        <div class="rh-sub" id="rh-sub">PA 2026 — Plano de Acção</div>
+      </div>
+      <div class="rh-badge" id="rh-badge">—</div>
+    </div>
+
+    <!-- IMAGE ZONE -->
+    <div id="image-zone">
+      <div class="iz-header">
+        <span class="iz-title">Imagens do Relatório</span>
+        <span class="iz-hint">Máximo 3 imagens • guardado localmente</span>
+      </div>
+      <div class="iz-grid" id="iz-grid">
+        <!-- thumbnails injected here -->
+        <div class="iz-add" onclick="document.getElementById('img-input').click()" id="iz-add-btn">
+          <span class="iz-add-icon">+</span>
+          <span>Adicionar</span>
+        </div>
+      </div>
+      <input type="file" id="img-input" accept="image/*" multiple onchange="handleImageUpload(event)" />
+    </div>
+
+    <!-- DATA TABLE -->
+    <div id="data-section">
+      <div class="ds-header">
+        <span class="ds-title">Dados do Quadro</span>
+      </div>
+      <div id="data-table-wrap">
+        <table id="data-table">
+          <thead id="table-head"></thead>
+          <tbody id="table-body">
+            <tr><td class="no-data" colspan="10">Seleccione um projecto para ver os dados.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUMMARY SECTION -->
+    <div id="summary-section">
+      <div class="sum-title">Resumo Automático</div>
+      <div id="summary-text">Seleccione um projecto para gerar o resumo.</div>
+    </div>
+
+  </div><!-- /#main -->
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sb-head">Relatórios Gerados</div>
+    <div id="history-list">
+      <div class="hist-empty">Nenhum relatório gerado ainda.</div>
+    </div>
+    <div class="sb-actions">
+      <button class="sb-btn btn-primary" onclick="openGenDialog()">&#128196; Gerar Relatório</button>
+      <button class="sb-btn btn-gold" onclick="openPresModal()">&#127902; Apresentação</button>
+    </div>
+  </div>
+
+</div><!-- /#layout -->
+
+<!-- ============================================================
+     GENERATE DIALOG
+============================================================ -->
+<div id="gen-dialog">
+  <div class="gd-box">
+    <div class="gd-icon" id="gd-icon">&#128196;</div>
+    <div class="gd-title" id="gd-title">Gerar Relatório</div>
+    <div class="gd-progress">
+      <div class="gd-dot" id="dot-0"></div>
+      <div class="gd-dot" id="dot-1"></div>
+      <div class="gd-dot" id="dot-2"></div>
+    </div>
+    <div class="gd-step" id="gd-step">Confirme a geração do relatório para este projecto.</div>
+    <div class="gd-actions" id="gd-actions">
+      <button class="gd-btn gd-btn-cancel" onclick="closeGenDialog()">Cancelar</button>
+      <button class="gd-btn gd-btn-primary" onclick="confirmGenerate()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PRESENTATION MODAL
+============================================================ -->
+<div id="pres-modal">
+  <div class="pm-controls">
+    <button class="pm-btn pm-btn-close" onclick="closePresModal()">&#10005; Fechar</button>
+    <button class="pm-btn pm-btn-nav" onclick="prevSlide()">&#8592; Anterior</button>
+    <span class="pm-counter" id="pm-counter">1 / 1</span>
+    <button class="pm-btn pm-btn-nav" onclick="nextSlide()">Próximo &#8594;</button>
+    <button class="pm-btn pm-btn-print" onclick="printPresentation()">&#128438; Imprimir/PDF</button>
+  </div>
+  <div class="pm-slide-area" id="pm-slide-area">
+    <!-- slides injected here -->
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+'use strict';
+
+/* ----------------------------------------------------------
+   CONSTANTS
+---------------------------------------------------------- */
+const COL = {
+  ACCOES:      'text_mm0g5hyr',
+  RESPONSAVEL: 'multiple_person_mkzzc76',
+  META:        'numeric_mkzzz54r',
+  KPIS:        'numeric_mkzzjvha',
+  PROGRESSO:   'formula_mm00qtv4',
+  F1: 'color_mkzza0m',
+  F2: 'color_mkzz87y',
+  F3: 'color_mkzz22ef',
+  F4: 'color_mkzzzttd',
+  P_REAL:      'numeric_mm06c1nk',
+  PDS:         'text_mm06z9km',
+  DATA:        'date_mkzz8t47',
+};
+
+const KPI_DESC = {
+  '5090842468': {
+    '2672134368': ['% de capacidade explorada'],
+    '2672138862': ['Nº de parceiros a explorar o ANGOSAT-2'],
+    '2672130253': ['Nº de beams ocupados'],
+    '2672130254': ['Nº de parceiros a explorar o ANGOSAT-2'],
+    '2672130255': ['N.º de interações realizadas'],
+  }
+};
+
+const BACKEND = 'http://localhost:5000';
+
+const COL_LABELS = {
+  ACCOES:      'Acções',
+  RESPONSAVEL: 'Responsável',
+  META:        'Meta',
+  KPIS:        'KPIs',
+  PROGRESSO:   'Progresso',
+  F1: 'F1', F2: 'F2', F3: 'F3', F4: 'F4',
+  P_REAL:      'P. Real',
+  PDS:         'PDS',
+  DATA:        'Data',
+};
+
+// visible columns (keys of COL_LABELS)
+let visibleCols = ['ACCOES', 'RESPONSAVEL', 'META', 'KPIS', 'PROGRESSO', 'F1', 'F2', 'F3', 'F4', 'P_REAL', 'DATA'];
+
+/* ----------------------------------------------------------
+   STATE
+---------------------------------------------------------- */
+let monday = null;
+let currentWorkspaceId = null;
+let programs = [];      // [{id, name, boards:[]}]
+let currentBoardId = null;
+let currentBoardName = '';
+let boardItems = [];    // raw items from monday API
+let currentSlideIdx = 0;
+let slides = [];        // arrays of items (max 3 per slide)
+
+/* ----------------------------------------------------------
+   INIT
+---------------------------------------------------------- */
+(function init() {
+  try {
+    monday = window.mondaySdk();
+    monday.listen('context', function(res) {
+      var ctx = res.data || {};
+      var wsId = ctx.workspaceId || null;
+      if (wsId && wsId !== currentWorkspaceId) {
+        currentWorkspaceId = wsId;
+        loadPrograms();
+      } else if (!wsId) {
+        showDevBanner();
+      }
+    });
+    // also try get context immediately
+    monday.get('context').then(function(res) {
+      var ctx = res.data || {};
+      if (!currentWorkspaceId && ctx.workspaceId) {
+        currentWorkspaceId = ctx.workspaceId;
+        loadPrograms();
+      }
+    }).catch(function() {
+      showDevBanner();
+    });
+  } catch(e) {
+    showDevBanner();
+  }
+
+  buildColPanel();
+  renderHistoryList();
+})();
+
+function showDevBanner() {
+  document.getElementById('dev-banner').classList.add('visible');
+}
+
+/* ----------------------------------------------------------
+   COLUMN TOGGLE PANEL
+---------------------------------------------------------- */
+function buildColPanel() {
+  var container = document.getElementById('col-checkboxes');
+  container.innerHTML = '';
+  Object.keys(COL_LABELS).forEach(function(key) {
+    var row = document.createElement('div');
+    row.className = 'cp-row';
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.id = 'chk_' + key;
+    cb.checked = visibleCols.indexOf(key) > -1;
+    cb.onchange = function() { toggleColVisibility(key, cb.checked); };
+    var lbl = document.createElement('label');
+    lbl.htmlFor = 'chk_' + key;
+    lbl.textContent = COL_LABELS[key];
+    row.appendChild(cb);
+    row.appendChild(lbl);
+    container.appendChild(row);
+  });
+}
+
+function toggleColPanel() {
+  document.getElementById('col-panel').classList.toggle('open');
+}
+
+function toggleColVisibility(key, checked) {
+  if (checked && visibleCols.indexOf(key) === -1) {
+    visibleCols.push(key);
+  } else if (!checked) {
+    visibleCols = visibleCols.filter(function(k) { return k !== key; });
+  }
+  renderTable();
+}
+
+// close col panel on outside click
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('col-panel');
+  if (!panel.contains(e.target) && !e.target.classList.contains('tb-btn')) {
+    panel.classList.remove('open');
+  }
+});
+
+/* ----------------------------------------------------------
+   MONDAY API QUERIES
+---------------------------------------------------------- */
+function gql(query, variables) {
+  if (!monday) return Promise.reject('SDK not available');
+  return monday.api(query, { variables: variables || {} });
+}
+
+function loadPrograms() {
+  if (!currentWorkspaceId) { showDevBanner(); return; }
+  var progSel = document.getElementById('program-sel');
+  progSel.innerHTML = '<option value="">A carregar...</option>';
+
+  // Load folders (programs) and boards in workspace
+  var query = `
+    query ($wsId: [ID!]) {
+      folders(workspace_ids: $wsId) {
+        id name
+        children {
+          ... on Board {
+            id name
+          }
+        }
+      }
+      boards(workspace_ids: $wsId, board_kind: public, limit: 100) {
+        id name folder_id
+      }
+    }
+  `;
+
+  gql(query, { wsId: [String(currentWorkspaceId)] }).then(function(res) {
+    var data = res.data || {};
+    var folders = data.folders || [];
+    var boards = data.boards || [];
+
+    // Map folder id -> folder
+    var folderMap = {};
+    folders.forEach(function(f) {
+      folderMap[f.id] = { id: f.id, name: f.name, boards: [] };
+    });
+
+    // Assign boards to folders
+    boards.forEach(function(b) {
+      if (b.folder_id && folderMap[b.folder_id]) {
+        folderMap[b.folder_id].boards.push({ id: b.id, name: b.name });
+      }
+    });
+
+    programs = Object.values(folderMap).filter(function(f) { return f.boards.length > 0; });
+
+    // Also add "Sem pasta" group for boards without folder
+    var orphans = boards.filter(function(b) { return !b.folder_id; });
+    if (orphans.length > 0) {
+      programs.push({ id: '__none__', name: 'Sem pasta', boards: orphans.map(function(b) { return { id: b.id, name: b.name }; }) });
+    }
+
+    progSel.innerHTML = '<option value="">— Seleccionar programa —</option>';
+    programs.forEach(function(p) {
+      var opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name;
+      progSel.appendChild(opt);
+    });
+  }).catch(function(err) {
+    console.error('loadPrograms error', err);
+    progSel.innerHTML = '<option value="">— Erro ao carregar —</option>';
+    showDevBanner();
+  });
+}
+
+function onProgramChange() {
+  var progId = document.getElementById('program-sel').value;
+  var projSel = document.getElementById('project-sel');
+  projSel.innerHTML = '<option value="">— Seleccionar projecto —</option>';
+  if (!progId) return;
+
+  var prog = programs.find(function(p) { return p.id === progId; });
+  if (!prog) return;
+
+  prog.boards.forEach(function(b) {
+    var opt = document.createElement('option');
+    opt.value = b.id;
+    opt.textContent = b.name;
+    projSel.appendChild(opt);
+  });
+}
+
+function onProjectChange() {
+  var boardId = document.getElementById('project-sel').value;
+  if (!boardId) return;
+  loadBoardData(boardId);
+}
+
+function loadBoardData(boardId) {
+  currentBoardId = boardId;
+  boardItems = [];
+
+  // find board name
+  var projSel = document.getElementById('project-sel');
+  var selOpt = projSel.options[projSel.selectedIndex];
+  currentBoardName = selOpt ? selOpt.textContent : 'Projecto';
+
+  updateReportHeader();
+  renderTableLoading();
+
+  var query = `
+    query ($boardId: [ID!]) {
+      boards(ids: $boardId) {
+        id name
+        items_page(limit: 200) {
+          items {
+            id name
+            column_values {
+              id text value
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  gql(query, { boardId: [String(boardId)] }).then(function(res) {
+    var boards = (res.data && res.data.boards) || [];
+    if (!boards.length) { renderTableEmpty(); return; }
+    var board = boards[0];
+    boardItems = (board.items_page && board.items_page.items) || [];
+    updateStats();
+    renderTable();
+    renderSummary();
+    renderImages();
+    buildSlides();
+  }).catch(function(err) {
+    console.error('loadBoardData error', err);
+    document.getElementById('table-body').innerHTML =
+      '<tr><td class="no-data" colspan="10">Erro ao carregar dados: ' + escHtml(String(err.message || err)) + '</td></tr>';
+  });
+}
+
+/* ----------------------------------------------------------
+   COLUMN VALUE HELPERS
+---------------------------------------------------------- */
+function getColVal(item, colId) {
+  if (!item || !item.column_values) return '';
+  var cv = item.column_values.find(function(c) { return c.id === colId; });
+  return cv ? (cv.text || '') : '';
+}
+
+function getColRaw(item, colId) {
+  if (!item || !item.column_values) return '';
+  var cv = item.column_values.find(function(c) { return c.id === colId; });
+  return cv ? (cv.value || '') : '';
+}
+
+function getProgressNum(item) {
+  var v = getColVal(item, COL.PROGRESSO);
+  if (!v) {
+    // try P_REAL
+    v = getColVal(item, COL.P_REAL);
+  }
+  var n = parseFloat(v);
+  return isNaN(n) ? 0 : n;
+}
+
+function getStatusLabel(item) {
+  // Check F1-F4 for status text
+  var fields = [COL.F1, COL.F2, COL.F3, COL.F4];
+  for (var i = 0; i < fields.length; i++) {
+    var v = getColVal(item, fields[i]).toLowerCase();
+    if (v) return v;
+  }
+  return '';
+}
+
+function statusBadge(label) {
+  if (!label) return '<span class="badge badge-neutral">—</span>';
+  var l = label.toLowerCase();
+  if (l.includes('feito') || l.includes('conclu') || l.includes('done')) {
+    return '<span class="badge badge-success">' + escHtml(label) + '</span>';
+  }
+  if (l.includes('progresso') || l.includes('andamento') || l.includes('working')) {
+    return '<span class="badge badge-warning">' + escHtml(label) + '</span>';
+  }
+  if (l.includes('parado') || l.includes('bloqueado') || l.includes('atrasado') || l.includes('stuck')) {
+    return '<span class="badge badge-danger">' + escHtml(label) + '</span>';
+  }
+  return '<span class="badge badge-neutral">' + escHtml(label) + '</span>';
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* ----------------------------------------------------------
+   STATS
+---------------------------------------------------------- */
+function updateStats() {
+  var total = boardItems.length;
+  var progs = boardItems.map(getProgressNum);
+  var avg = total > 0 ? Math.round(progs.reduce(function(a, b) { return a + b; }, 0) / total) : 0;
+  var done = boardItems.filter(function(item) {
+    var s = getStatusLabel(item).toLowerCase();
+    return s.includes('feito') || s.includes('conclu') || s.includes('done');
+  }).length;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-prog').textContent = avg + '%';
+  document.getElementById('stat-done').textContent = done + ' / ' + total;
+
+  var stateEl = document.getElementById('stat-state');
+  var stateSub = document.getElementById('stat-state-sub');
+  if (avg >= 80) {
+    stateEl.innerHTML = '<span class="badge badge-success">Bom</span>';
+    stateSub.textContent = 'Progresso acima de 80%';
+  } else if (avg >= 40) {
+    stateEl.innerHTML = '<span class="badge badge-warning">Em curso</span>';
+    stateSub.textContent = 'Progresso entre 40-79%';
+  } else {
+    stateEl.innerHTML = '<span class="badge badge-danger">Crítico</span>';
+    stateSub.textContent = 'Progresso abaixo de 40%';
+  }
+}
+
+/* ----------------------------------------------------------
+   REPORT HEADER
+---------------------------------------------------------- */
+function updateReportHeader() {
+  document.getElementById('rh-title').textContent = currentBoardName || 'Seleccione um projecto';
+  document.getElementById('rh-sub').textContent = 'PA 2026 — Plano de Acção';
+  document.getElementById('rh-badge').textContent = new Date().toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
+}
+
+/* ----------------------------------------------------------
+   TABLE RENDER
+---------------------------------------------------------- */
+function renderTableLoading() {
+  document.getElementById('table-body').innerHTML =
+    '<tr class="loading-row"><td colspan="10"><span class="spinner"></span>A carregar dados...</td></tr>';
+}
+
+function renderTableEmpty() {
+  document.getElementById('table-body').innerHTML =
+    '<tr><td class="no-data" colspan="10">Nenhum item encontrado neste quadro.</td></tr>';
+}
+
+function renderTable() {
+  var thead = document.getElementById('table-head');
+  var tbody = document.getElementById('table-body');
+
+  // Build header
+  var headHtml = '<tr><th>#</th><th>Nome</th>';
+  visibleCols.forEach(function(key) {
+    headHtml += '<th>' + COL_LABELS[key] + '</th>';
+  });
+  headHtml += '</tr>';
+  thead.innerHTML = headHtml;
+
+  // Build rows
+  if (!boardItems.length) { renderTableEmpty(); return; }
+
+  var rowsHtml = '';
+  boardItems.forEach(function(item, idx) {
+    rowsHtml += '<tr>';
+    rowsHtml += '<td style="color:var(--text-muted);font-size:11px;">' + (idx + 1) + '</td>';
+    rowsHtml += '<td style="font-weight:600;max-width:200px;">' + escHtml(item.name) + '</td>';
+
+    visibleCols.forEach(function(key) {
+      var colId = COL[key];
+      if (key === 'PROGRESSO' || key === 'P_REAL') {
+        var pct = getProgressNum(item);
+        var barColor = pct >= 80 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--danger)';
+        rowsHtml += '<td>';
+        rowsHtml += '<div>' + pct + '%</div>';
+        rowsHtml += '<div class="prog-bar-wrap"><div class="prog-bar" style="width:' + Math.min(pct,100) + '%;background:' + barColor + ';"></div></div>';
+        rowsHtml += '</td>';
+      } else if (key === 'F1' || key === 'F2' || key === 'F3' || key === 'F4') {
+        var sv = getColVal(item, colId);
+        rowsHtml += '<td>' + statusBadge(sv) + '</td>';
+      } else {
+        var tv = getColVal(item, colId);
+        rowsHtml += '<td>' + (tv ? escHtml(tv) : '<span style="color:var(--text-muted)">—</span>') + '</td>';
+      }
+    });
+    rowsHtml += '</tr>';
+  });
+
+  tbody.innerHTML = rowsHtml;
+}
+
+/* ----------------------------------------------------------
+   SUMMARY
+---------------------------------------------------------- */
+function renderSummary() {
+  if (!boardItems.length) {
+    document.getElementById('summary-text').textContent = 'Nenhum dado disponível.';
+    return;
+  }
+
+  var total = boardItems.length;
+  var progs = boardItems.map(getProgressNum);
+  var avg = Math.round(progs.reduce(function(a, b) { return a + b; }, 0) / total);
+  var done = boardItems.filter(function(item) {
+    var s = getStatusLabel(item).toLowerCase();
+    return s.includes('feito') || s.includes('conclu');
+  }).length;
+  var stuck = boardItems.filter(function(item) {
+    var s = getStatusLabel(item).toLowerCase();
+    return s.includes('parado') || s.includes('bloqueado') || s.includes('atrasado');
+  }).length;
+  var inProg = total - done - stuck;
+
+  var dateStr = new Date().toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  var text = 'Relatório gerado em ' + dateStr + '.\n\n';
+  text += 'O projecto "' + currentBoardName + '" conta com ' + total + ' metas definidas. ';
+  text += 'O progresso médio global é de ' + avg + '%. ';
+  text += done + ' meta(s) foram concluídas';
+  if (inProg > 0) text += ', ' + inProg + ' encontram-se em execução';
+  if (stuck > 0) text += ' e ' + stuck + ' apresentam impedimentos';
+  text += '.\n\n';
+
+  if (avg >= 80) {
+    text += 'O desempenho geral do projecto é considerado BOM, com a maioria das metas em fase avançada de execução.';
+  } else if (avg >= 40) {
+    text += 'O projecto encontra-se EM CURSO com progressos intermédios. Recomenda-se acompanhamento contínuo para garantir o cumprimento dos prazos.';
+  } else {
+    text += 'O projecto apresenta um desempenho CRÍTICO. Recomenda-se revisão urgente das acções e redistribuição de recursos.';
+  }
+
+  document.getElementById('summary-text').textContent = text;
+}
+
+/* ----------------------------------------------------------
+   IMAGE ZONE
+---------------------------------------------------------- */
+function getImgKey() {
+  return 'imgs_' + (currentBoardId || 'default');
+}
+
+function loadImages() {
+  try {
+    return JSON.parse(localStorage.getItem(getImgKey()) || '[]');
+  } catch(e) { return []; }
+}
+
+function saveImages(imgs) {
+  localStorage.setItem(getImgKey(), JSON.stringify(imgs));
+}
+
+function renderImages() {
+  var imgs = loadImages();
+  var grid = document.getElementById('iz-grid');
+  grid.innerHTML = '';
+
+  imgs.forEach(function(src, i) {
+    var thumb = document.createElement('div');
+    thumb.className = 'iz-thumb';
+    var img = document.createElement('img');
+    img.src = src;
+    img.alt = 'Imagem ' + (i + 1);
+    var del = document.createElement('button');
+    del.className = 'iz-del';
+    del.textContent = '✕';
+    del.onclick = function(e) { e.stopPropagation(); removeImage(i); };
+    thumb.appendChild(img);
+    thumb.appendChild(del);
+    grid.appendChild(thumb);
+  });
+
+  if (imgs.length < 3) {
+    var addBtn = document.createElement('div');
+    addBtn.className = 'iz-add';
+    addBtn.id = 'iz-add-btn';
+    addBtn.innerHTML = '<span class="iz-add-icon">+</span><span>Adicionar</span>';
+    addBtn.onclick = function() { document.getElementById('img-input').click(); };
+    grid.appendChild(addBtn);
+  }
+}
+
+function handleImageUpload(event) {
+  var files = Array.from(event.target.files);
+  var imgs = loadImages();
+  var remaining = 3 - imgs.length;
+  files = files.slice(0, remaining);
+
+  var readers = files.map(function(file) {
+    return new Promise(function(resolve) {
+      var reader = new FileReader();
+      reader.onload = function(e) { resolve(e.target.result); };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  Promise.all(readers).then(function(results) {
+    imgs = imgs.concat(results);
+    saveImages(imgs);
+    renderImages();
+    buildSlides();
+  });
+
+  event.target.value = '';
+}
+
+function removeImage(idx) {
+  var imgs = loadImages();
+  imgs.splice(idx, 1);
+  saveImages(imgs);
+  renderImages();
+  buildSlides();
+}
+
+/* ----------------------------------------------------------
+   HISTORY
+---------------------------------------------------------- */
+function getHistKey() {
+  return 'history_' + (currentBoardId || 'default');
+}
+
+function loadHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(getHistKey()) || '[]');
+  } catch(e) { return []; }
+}
+
+function saveHistory(hist) {
+  localStorage.setItem(getHistKey(), JSON.stringify(hist));
+}
+
+function addHistoryEntry(entry) {
+  var hist = loadHistory();
+  hist.unshift(entry);
+  if (hist.length > 20) hist = hist.slice(0, 20);
+  saveHistory(hist);
+  renderHistoryList();
+}
+
+function renderHistoryList() {
+  var list = document.getElementById('history-list');
+  var hist = loadHistory();
+  if (!hist.length) {
+    list.innerHTML = '<div class="hist-empty">Nenhum relatório gerado ainda.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  hist.forEach(function(entry) {
+    var item = document.createElement('div');
+    item.className = 'hist-item';
+    var title = document.createElement('div');
+    title.className = 'hist-item-title';
+    title.textContent = entry.project || 'Projecto';
+    var date = document.createElement('div');
+    date.className = 'hist-item-date';
+    date.textContent = entry.date || '';
+    item.appendChild(title);
+    item.appendChild(date);
+    if (entry.url) {
+      var link = document.createElement('a');
+      link.className = 'hist-item-link';
+      link.href = entry.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = 'Abrir documento →';
+      item.appendChild(link);
+    }
+    list.appendChild(item);
+  });
+}
+
+/* ----------------------------------------------------------
+   GENERATE DIALOG
+---------------------------------------------------------- */
+var genSteps = [
+  { icon: '📄', title: 'Gerar Relatório', step: 'Confirme a geração do relatório para este projecto.' },
+  { icon: '⏳', title: 'A processar...', step: 'A enviar dados para o servidor Python...' },
+  { icon: '✅', title: 'Concluído!', step: 'O relatório foi gerado com sucesso.' },
+  { icon: '❌', title: 'Erro', step: 'Ocorreu um erro ao gerar o relatório.' },
+];
+var genPhase = 0;
+
+function openGenDialog() {
+  if (!currentBoardId) {
+    alert('Seleccione um projecto primeiro.');
+    return;
+  }
+  genPhase = 0;
+  updateGenDialog();
+  document.getElementById('gen-dialog').classList.add('open');
+}
+
+function closeGenDialog() {
+  document.getElementById('gen-dialog').classList.remove('open');
+}
+
+function updateGenDialog() {
+  var s = genSteps[genPhase] || genSteps[0];
+  document.getElementById('gd-icon').textContent = s.icon;
+  document.getElementById('gd-title').textContent = s.title;
+  document.getElementById('gd-step').textContent = s.step;
+
+  var dots = ['dot-0', 'dot-1', 'dot-2'];
+  dots.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (el) el.classList.toggle('active', i <= genPhase);
+  });
+
+  var actions = document.getElementById('gd-actions');
+  if (genPhase === 0) {
+    actions.innerHTML = '<button class="gd-btn gd-btn-cancel" onclick="closeGenDialog()">Cancelar</button>' +
+      '<button class="gd-btn gd-btn-primary" onclick="confirmGenerate()">Confirmar</button>';
+  } else if (genPhase === 1) {
+    actions.innerHTML = '<button class="gd-btn gd-btn-cancel" disabled>A processar...</button>';
+  } else {
+    actions.innerHTML = '<button class="gd-btn gd-btn-primary" onclick="closeGenDialog()">Fechar</button>';
+  }
+}
+
+function confirmGenerate() {
+  genPhase = 1;
+  updateGenDialog();
+
+  var payload = {
+    board_id: currentBoardId,
+    board_name: currentBoardName,
+    items: boardItems,
+    date: new Date().toISOString(),
+  };
+
+  fetch(BACKEND + '/generate-doc', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    genPhase = 2;
+    var docUrl = /^https?:\/\//.test(data.doc_url) ? data.doc_url : null;
+    genSteps[2] = { step: docUrl ? 'O relatório foi gerado. Clique para abrir.' : 'O relatório foi processado (sem URL de documento).', ok: true };
+    updateGenDialog();
+
+    addHistoryEntry({
+      project: currentBoardName,
+      date: new Date().toLocaleString('pt-PT'),
+      url: docUrl,
+    });
+
+    if (docUrl) {
+      document.getElementById('gd-actions').innerHTML =
+        '<button class="gd-btn gd-btn-cancel" onclick="closeGenDialog()">Fechar</button>' +
+        '<a href="' + escHtml(docUrl) + '" target="_blank" rel="noopener noreferrer" class="gd-btn gd-btn-primary" style="text-decoration:none;">Abrir Documento</a>';
+    }
+  })
+  .catch(function(err) {
+    genPhase = 3;
+    genSteps[3] = { step: 'Erro: ' + escHtml(String(err.message || 'Verifique se o servidor Python está a correr em localhost:5000.')), ok: false };
+    updateGenDialog();
+  });
+}
+
+/* ----------------------------------------------------------
+   SLIDES BUILD
+---------------------------------------------------------- */
+function buildSlides() {
+  slides = [];
+  if (!boardItems.length) return;
+  var ITEMS_PER_SLIDE = 3;
+  for (var i = 0; i < boardItems.length; i += ITEMS_PER_SLIDE) {
+    slides.push(boardItems.slice(i, i + ITEMS_PER_SLIDE));
+  }
+}
+
+/* ----------------------------------------------------------
+   PRESENTATION MODAL
+---------------------------------------------------------- */
+function openPresModal() {
+  if (!currentBoardId) {
+    alert('Seleccione um projecto primeiro.');
+    return;
+  }
+  buildSlides();
+  if (!slides.length) {
+    alert('Não há dados para apresentar.');
+    return;
+  }
+  currentSlideIdx = 0;
+  renderPresModal();
+  document.getElementById('pres-modal').classList.add('open');
+}
+
+function closePresModal() {
+  document.getElementById('pres-modal').classList.remove('open');
+}
+
+function renderPresModal() {
+  var area = document.getElementById('pm-slide-area');
+  var imgs = loadImages();
+  area.innerHTML = '';
+
+  var slideEl = buildSlideElement(slides[currentSlideIdx], currentSlideIdx, imgs);
+  area.appendChild(slideEl);
+
+  document.getElementById('pm-counter').textContent = (currentSlideIdx + 1) + ' / ' + slides.length;
+}
+
+function buildSlideElement(items, slideIdx, imgs) {
+  var slide = document.createElement('div');
+  slide.className = 'slide';
+
+  // Top accent
+  var accent = document.createElement('div');
+  accent.className = 'slide-top-accent';
+  slide.appendChild(accent);
+
+  // Body
+  var body = document.createElement('div');
+  body.className = 'slide-body';
+
+  // LEFT PANEL
+  var left = document.createElement('div');
+  left.className = 'slide-left';
+
+  var lbl = document.createElement('div');
+  lbl.className = 'sl-project-label';
+  lbl.textContent = 'PA 2026';
+  left.appendChild(lbl);
+
+  var ttl = document.createElement('div');
+  ttl.className = 'sl-project-title';
+  ttl.textContent = currentBoardName;
+  left.appendChild(ttl);
+
+  var divider = document.createElement('div');
+  divider.className = 'sl-divider';
+  left.appendChild(divider);
+
+  // Carousel
+  var car = document.createElement('div');
+  car.className = 'sl-carousel';
+
+  if (imgs && imgs.length > 0) {
+    imgs.forEach(function(src, i) {
+      var img = document.createElement('img');
+      img.className = 'sl-car-img' + (i === 0 ? ' active' : '');
+      img.src = src;
+      img.alt = 'Imagem ' + (i + 1);
+      car.appendChild(img);
+    });
+
+    if (imgs.length > 1) {
+      var prevBtn = document.createElement('button');
+      prevBtn.className = 'sl-car-nav sl-car-prev';
+      prevBtn.textContent = '◄';
+      prevBtn.onclick = function() { carNav(car, -1); };
+      car.appendChild(prevBtn);
+
+      var nextBtn = document.createElement('button');
+      nextBtn.className = 'sl-car-nav sl-car-next';
+      nextBtn.textContent = '►';
+      nextBtn.onclick = function() { carNav(car, 1); };
+      car.appendChild(nextBtn);
+
+      var dots = document.createElement('div');
+      dots.className = 'sl-car-dots';
+      imgs.forEach(function(_, i) {
+        var d = document.createElement('button');
+        d.className = 'sl-car-dot' + (i === 0 ? ' active' : '');
+        d.onclick = function() { carGoto(car, i); };
+        dots.appendChild(d);
+      });
+      car.appendChild(dots);
+    }
+  } else {
+    var empty = document.createElement('div');
+    empty.className = 'sl-car-empty';
+    empty.textContent = 'Sem imagens';
+    car.appendChild(empty);
+  }
+
+  left.appendChild(car);
+  body.appendChild(left);
+
+  // RIGHT PANEL
+  var right = document.createElement('div');
+  right.className = 'slide-right';
+
+  // Determine column count for grid
+  var heading = document.createElement('div');
+  heading.className = 'sr-heading';
+  heading.style.gridTemplateColumns = '1fr 2fr 1fr 1fr';
+  heading.innerHTML = '<span>META / ACÇÃO</span><span>INDICADORES</span><span>DATA</span><span>ESTADO</span>';
+  right.appendChild(heading);
+
+  items.forEach(function(item) {
+    var row = document.createElement('div');
+    row.className = 'sr-row';
+    row.style.gridTemplateColumns = '1fr 2fr 1fr 1fr';
+
+    // Meta / Acção
+    var metaCell = document.createElement('div');
+    var metaLabel = document.createElement('div');
+    metaLabel.className = 'sr-meta-label';
+    metaLabel.textContent = 'Meta';
+    var metaVal = document.createElement('div');
+    metaVal.className = 'sr-meta-val';
+    metaVal.textContent = item.name || '—';
+    metaCell.appendChild(metaLabel);
+    metaCell.appendChild(metaVal);
+
+    var acLabel = document.createElement('div');
+    acLabel.style.cssText = 'font-size:10px;color:var(--text-muted);margin-top:4px;';
+    acLabel.textContent = getColVal(item, COL.ACCOES) || '';
+    metaCell.appendChild(acLabel);
+    row.appendChild(metaCell);
+
+    // Indicadores
+    var kpiCell = document.createElement('div');
+    var kpiVal = getColVal(item, COL.KPIS);
+    var pdsVal = getColVal(item, COL.PDS);
+    var kpiDesc = '';
+    if (currentBoardId && KPI_DESC[currentBoardId] && KPI_DESC[currentBoardId][item.id]) {
+      kpiDesc = KPI_DESC[currentBoardId][item.id].join(', ');
+    }
+    kpiCell.innerHTML = '<div style="font-size:11px;">' +
+      (kpiDesc || pdsVal || kpiVal || '—') + '</div>';
+    if (kpiVal && kpiDesc) {
+      kpiCell.innerHTML += '<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Valor: ' + escHtml(kpiVal) + '</div>';
+    }
+    row.appendChild(kpiCell);
+
+    // Data
+    var dataCell = document.createElement('div');
+    dataCell.style.fontSize = '11px';
+    dataCell.textContent = getColVal(item, COL.DATA) || '—';
+    row.appendChild(dataCell);
+
+    // Estado
+    var stateCell = document.createElement('div');
+    var statusStr = getStatusLabel(item);
+    stateCell.innerHTML = statusBadge(statusStr || '—');
+    var prog = getProgressNum(item);
+    if (prog) {
+      stateCell.innerHTML += '<div style="margin-top:4px;font-size:10px;color:var(--text-muted);">' + prog + '%</div>';
+    }
+    row.appendChild(stateCell);
+
+    right.appendChild(row);
+  });
+
+  body.appendChild(right);
+  slide.appendChild(body);
+
+  // FOOTER
+  var footer = document.createElement('div');
+  footer.className = 'slide-footer';
+
+  var sfLeft = document.createElement('div');
+  sfLeft.className = 'sf-left';
+
+  var logoEl = document.createElement('img');
+  logoEl.className = 'sf-logo';
+  logoEl.src = 'assets/branding/ggpen-logo.png';
+  logoEl.alt = 'GGPEN';
+  logoEl.onerror = function() { this.style.display = 'none'; };
+  sfLeft.appendChild(logoEl);
+
+  var addr = document.createElement('div');
+  addr.className = 'sf-addr';
+  addr.innerHTML = 'Gabinete de Gestão de Projectos Especiais Nucleares<br>Luanda, Angola &nbsp;|&nbsp; PA 2026';
+  sfLeft.appendChild(addr);
+
+  var sfRight = document.createElement('div');
+  sfRight.className = 'sf-right';
+
+  ['angotic.png', 'angola-gov.png', 'minttics.png'].forEach(function(fn) {
+    var lg = document.createElement('img');
+    lg.className = 'sf-logo-sm';
+    lg.src = 'assets/branding/' + fn;
+    lg.alt = fn.replace('.png', '');
+    lg.onerror = function() { this.style.display = 'none'; };
+    sfRight.appendChild(lg);
+  });
+
+  footer.appendChild(sfLeft);
+  footer.appendChild(sfRight);
+  slide.appendChild(footer);
+
+  return slide;
+}
+
+/* ----------------------------------------------------------
+   CAROUSEL NAVIGATION (inside slides)
+---------------------------------------------------------- */
+function carNav(carEl, delta) {
+  var imgs = carEl.querySelectorAll('.sl-car-img');
+  var dots = carEl.querySelectorAll('.sl-car-dot');
+  var current = -1;
+  imgs.forEach(function(img, i) { if (img.classList.contains('active')) current = i; });
+  var next = (current + delta + imgs.length) % imgs.length;
+  carGotoEl(imgs, dots, next);
+}
+
+function carGoto(carEl, idx) {
+  var imgs = carEl.querySelectorAll('.sl-car-img');
+  var dots = carEl.querySelectorAll('.sl-car-dot');
+  carGotoEl(imgs, dots, idx);
+}
+
+function carGotoEl(imgs, dots, idx) {
+  imgs.forEach(function(img, i) { img.classList.toggle('active', i === idx); });
+  dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+}
+
+/* ----------------------------------------------------------
+   SLIDE NAVIGATION
+---------------------------------------------------------- */
+function nextSlide() {
+  if (currentSlideIdx < slides.length - 1) {
+    currentSlideIdx++;
+    renderPresModal();
+  }
+}
+
+function prevSlide() {
+  if (currentSlideIdx > 0) {
+    currentSlideIdx--;
+    renderPresModal();
+  }
+}
+
+/* ----------------------------------------------------------
+   KEYBOARD NAVIGATION
+---------------------------------------------------------- */
+document.addEventListener('keydown', function(e) {
+  var modal = document.getElementById('pres-modal');
+  if (!modal.classList.contains('open')) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { nextSlide(); e.preventDefault(); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { prevSlide(); e.preventDefault(); }
+  if (e.key === 'Escape') { closePresModal(); }
+});
+
+/* ----------------------------------------------------------
+   PRINT
+---------------------------------------------------------- */
+function printPresentation() {
+  if (!slides.length) return;
+  var imgs = loadImages();
+  var area = document.getElementById('pm-slide-area');
+
+  // Render all slides for print
+  area.innerHTML = '';
+  slides.forEach(function(items, i) {
+    var el = buildSlideElement(items, i, imgs);
+    area.appendChild(el);
+  });
+
+  document.body.classList.add('printing');
+  window.print();
+  document.body.classList.remove('printing');
+
+  // Restore single slide view
+  currentSlideIdx = Math.min(currentSlideIdx, slides.length - 1);
+  renderPresModal();
+}
+
+function printReport() {
+  if (!document.getElementById('pres-modal').classList.contains('open')) {
+    openPresModal();
+  }
+  printPresentation();
+}
+
+/* ----------------------------------------------------------
+   RELOAD
+---------------------------------------------------------- */
+function reloadData() {
+  if (currentBoardId) {
+    loadBoardData(currentBoardId);
+  } else if (currentWorkspaceId) {
+    loadPrograms();
+  } else {
+    location.reload();
+  }
+}
+
+</script>
+</body>
+</html>
