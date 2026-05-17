@@ -34,8 +34,25 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .btn-icon { background: rgba(255,255,255,0.10); border: none; border-radius: 6px; color: white; height: 34px; padding: 0 12px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: background 0.2s; font-family: var(--font-body); font-weight: 500; }
 .btn-icon:hover { background: rgba(255,255,255,0.22); }
 .btn-icon.active { background: rgba(200,150,62,0.35); }
+.btn-icon:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .container { padding: 1.25rem; max-width: 1200px; margin: 0 auto; }
+
+/* SELECTOR BAR — Programa & Projecto */
+.selector-bar { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.selector-group { display: flex; flex-direction: column; gap: 6px; }
+.selector-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.selector-label .step { background: var(--brand); color: white; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+.selector-label .step.done { background: var(--success); }
+.selector-dropdown { padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 13px; color: var(--text); background: var(--white); cursor: pointer; transition: all 0.15s; width: 100%; }
+.selector-dropdown:hover:not(:disabled) { border-color: var(--brand-mid); }
+.selector-dropdown:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(20, 48, 74, 0.08); }
+.selector-dropdown:disabled { background: var(--bg); color: var(--text-muted); cursor: not-allowed; }
+.selector-hint { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+@media (max-width: 720px) {
+  .selector-bar { grid-template-columns: 1fr; }
+}
 
 /* STATE CARDS */
 .state-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 2.5rem 2rem; text-align: center; color: var(--text-muted); max-width: 560px; margin: 2rem auto; }
@@ -43,8 +60,9 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .state-card h3 { font-family: var(--font-display); font-size: 20px; color: var(--text); margin-bottom: 0.5rem; }
 .state-card p { font-size: 13px; line-height: 1.6; }
 
-.loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 4rem 2rem; }
+.loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 3rem 2rem; }
 .spinner-lg { width: 38px; height: 38px; border: 3px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.spinner-sm { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--brand-mid); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* REPORT HEADER */
@@ -52,6 +70,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .report-header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,0.04); }
 .report-header::after { content: ''; position: absolute; bottom: -50px; right: 60px; width: 110px; height: 110px; border-radius: 50%; background: rgba(200,150,62,0.18); }
 .report-meta { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.65; margin-bottom: 0.5rem; font-weight: 500; }
+.report-prog-tag { display: inline-block; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; background: rgba(200,150,62,0.30); padding: 3px 9px; border-radius: 4px; margin-bottom: 0.6rem; font-weight: 600; }
 .report-title { font-family: var(--font-display); font-size: 28px; font-weight: 600; margin-bottom: 0.7rem; line-height: 1.15; }
 .report-desc { font-size: 13.5px; opacity: 0.82; line-height: 1.6; max-width: 620px; margin-bottom: 1rem; }
 .report-badges { display: flex; gap: 7px; flex-wrap: wrap; }
@@ -98,20 +117,6 @@ tbody td { padding: 9px 12px; font-size: 12px; color: var(--text); vertical-alig
 .s-blank    { background: var(--neutral-bg); color: var(--neutral); }
 .s-info     { background: var(--info-bg); color: var(--info); }
 
-/* PHASE PILLS */
-.phase-cell { display: flex; gap: 4px; flex-wrap: wrap; }
-.phase-pill { padding: 2px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 500; }
-
-/* KPI CARD GRID */
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 0.75rem; }
-.kpi-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.9rem 1rem; }
-.kpi-name { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
-.kpi-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); margin-bottom: 3px; }
-.kpi-val { font-weight: 600; color: var(--text); }
-.kpi-prog-wrap { background: var(--border); border-radius: 99px; height: 4px; margin-top: 6px; overflow: hidden; }
-.kpi-prog-fill { height: 100%; border-radius: 99px; }
-.kpi-actions { font-size: 11px; color: var(--brand-mid); margin-top: 5px; }
-
 /* IMAGES */
 .image-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr)); gap: 0.85rem; }
 .image-block { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
@@ -127,7 +132,6 @@ tbody td { padding: 9px 12px; font-size: 12px; color: var(--text); vertical-alig
 .debug-box { background: #1a2535; color: #7dd3fc; border-radius: var(--radius); padding: 1rem; font-size: 11px; font-family: monospace; overflow-x: auto; margin-bottom: 1rem; max-height: 300px; overflow-y: auto; }
 .debug-box h4 { color: #fbbf24; margin-bottom: 0.5rem; font-family: var(--font-body); }
 
-.notes-block { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 0.9rem 1.1rem; font-size: 13px; color: var(--text); line-height: 1.65; }
 .empty-section { background: var(--white); border: 1px dashed var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 12.5px; }
 .footer-meta { text-align: right; font-size: 10.5px; color: var(--text-muted); margin-top: 1.5rem; padding-top: 0.85rem; border-top: 1px solid var(--border); }
 
@@ -138,14 +142,8 @@ tbody td { padding: 9px 12px; font-size: 12px; color: var(--text); vertical-alig
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.err { background: var(--danger); }
 
-/* TOGGLE CHIPS */
-.view-toggle { display: flex; gap: 6px; margin-bottom: 1rem; }
-.chip { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--text-muted); transition: all 0.15s; }
-.chip.active { background: var(--brand); color: white; border-color: var(--brand); }
-.chip:hover:not(.active) { border-color: var(--brand-mid); color: var(--brand); }
-
 @media print {
-  .topbar, .standalone-banner, .image-upload-zone, .img-remove, .view-toggle, .btn-icon[onclick*="reload"], #debug-section { display: none !important; }
+  .topbar, .standalone-banner, .image-upload-zone, .img-remove, .selector-bar, #debug-section { display: none !important; }
   .container { padding: 0; max-width: none; }
   body { background: white; }
   .report-header { background: var(--brand) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -160,24 +158,52 @@ tbody td { padding: 9px 12px; font-size: 12px; color: var(--text); vertical-alig
     <div class="topbar-logo">P</div>
     <div>
       <div class="topbar-title">Gerador de Relatórios</div>
-      <div class="topbar-sub" id="board-sub">A carregar contexto…</div>
+      <div class="topbar-sub" id="board-sub">A carregar workspace P.A 2026…</div>
     </div>
   </div>
   <div class="topbar-actions">
     <button class="btn-icon" id="debug-btn" onclick="toggleDebug()" style="display:none;">🔍 Colunas</button>
-    <button class="btn-icon" onclick="window.print()">🖨 Imprimir / PDF</button>
-    <button class="btn-icon" onclick="reload()">↻ Recarregar</button>
+    <button class="btn-icon" id="print-btn" onclick="window.print()" disabled>🖨 Imprimir / PDF</button>
+    <button class="btn-icon" onclick="reloadWorkspace()">↻ Recarregar</button>
   </div>
 </div>
 
 <div class="standalone-banner" id="banner">
-  ⚠️ Aberto fora do monday.com — modo demo. Instala como Board View para dados reais.
+  ⚠️ Aberto fora do monday.com — modo demo. Instala como Workspace App / Board View para dados reais.
 </div>
 
-<div class="container" id="root">
-  <div class="loading-overlay">
-    <div class="spinner-lg"></div>
-    <div style="color:var(--text-muted);font-size:13px;">A inicializar monday SDK…</div>
+<div class="container">
+
+  <!-- DROPDOWNS: Programa → Projecto -->
+  <div class="selector-bar" id="selector-bar" style="display:none;">
+    <div class="selector-group">
+      <label class="selector-label" for="sel-programa">
+        <span class="step" id="step-1">1</span>
+        Programa
+      </label>
+      <select id="sel-programa" class="selector-dropdown" onchange="onProgramaChange()">
+        <option value="">— Selecciona um Programa —</option>
+      </select>
+      <div class="selector-hint" id="hint-programa">A carregar Programas do workspace P.A 2026…</div>
+    </div>
+
+    <div class="selector-group">
+      <label class="selector-label" for="sel-projecto">
+        <span class="step" id="step-2">2</span>
+        Projecto
+      </label>
+      <select id="sel-projecto" class="selector-dropdown" onchange="onProjectoChange()" disabled>
+        <option value="">— Primeiro selecciona um Programa —</option>
+      </select>
+      <div class="selector-hint" id="hint-projecto">Os projectos aparecem após escolheres o Programa.</div>
+    </div>
+  </div>
+
+  <div id="root">
+    <div class="loading-overlay">
+      <div class="spinner-lg"></div>
+      <div style="color:var(--text-muted);font-size:13px;">A inicializar monday SDK…</div>
+    </div>
   </div>
 </div>
 
@@ -187,12 +213,15 @@ tbody td { padding: 9px 12px; font-size: 12px; color: var(--text); vertical-alig
 // ═══════════════════════════════════════════════════════════════════════
 const monday = window.mondaySdk ? window.mondaySdk() : null;
 
-let currentBoardId = null;
-let currentBoardName = '';
+// Estado global
+let workspaceId = null;          // ID do workspace P.A 2026
+let workspaceName = '';
+let programas = [];              // [{ id, name, boards: [...] }] — folders
+let selectedProgramaId = null;
+let selectedProjectoId = null;
+let currentBoardData = null;
 let projectImages = [];
-let lastBoardData = null;
 let showDebug = false;
-let currentView = 'kpi'; // 'kpi' | 'tasks' | 'all'
 
 // ═══════════════════════════════════════════════════════════════════════
 // Helpers UI
@@ -208,11 +237,10 @@ function toast(msg, type = 'ok') {
 function statusClass(s) {
   if (!s) return 's-blank';
   const sl = String(s).toLowerCase();
-  if (sl.includes('conclu') || sl.includes('done') || sl.includes('feito') || sl.includes('terminado') || sl === 'feito') return 's-done';
+  if (sl.includes('conclu') || sl.includes('done') || sl.includes('feito') || sl.includes('terminado')) return 's-done';
   if (sl.includes('progress') || sl.includes('progresso') || sl.includes('andamento') || sl.includes('curso') || sl.includes('working')) return 's-progress';
   if (sl.includes('parado') || sl.includes('stuck') || sl.includes('bloqueado') || sl.includes('suspenso') || sl.includes('atrasado') || sl.includes('risco')) return 's-stuck';
   if (sl.includes('aguardar') || sl.includes('waiting') || sl.includes('planned') || sl.includes('não iniciado') || sl.includes('nao iniciado')) return 's-waiting';
-  if (sl.includes('em pro') || sl.includes('em curso')) return 's-progress';
   return 's-blank';
 }
 
@@ -232,18 +260,16 @@ function progressColor(p) {
   return '#B03030';
 }
 
-// Pega um valor de coluna por múltiplos nomes possíveis
 function getCol(item, ...titles) {
   for (const title of titles) {
+    if (!title) continue;
     const tl = title.toLowerCase();
     const found = item.column_values?.find(c =>
       c.column?.title?.toLowerCase() === tl ||
       c.column?.title?.toLowerCase().includes(tl)
     );
     if (found) {
-      // Tentar text primeiro, depois value parseado
       if (found.text && found.text.trim()) return found.text.trim();
-      // Para colunas de número/percentagem, o value pode ser JSON
       if (found.value && found.value !== 'null') {
         try {
           const v = JSON.parse(found.value);
@@ -255,7 +281,6 @@ function getCol(item, ...titles) {
   return '';
 }
 
-// Pega TODAS as colunas de um item como objeto {titulo: texto}
 function getAllCols(item) {
   const obj = {};
   (item.column_values || []).forEach(cv => {
@@ -277,35 +302,283 @@ function toggleDebug() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// GraphQL — query COMPLETA que captura grupos + todas as colunas
+// 1) CARREGAR WORKSPACE → PROGRAMAS (folders) → PROJECTOS (boards)
+// ═══════════════════════════════════════════════════════════════════════
+
+// Detectar o workspace P.A 2026 a partir de qualquer contexto disponível
+async function detectWorkspace(ctx) {
+  // Hipótese A: contexto traz workspaceId directamente
+  if (ctx?.workspaceId) return ctx.workspaceId;
+
+  // Hipótese B: contexto traz boardId → buscar workspace desse board
+  if (ctx?.boardId || ctx?.boardIds?.[0]) {
+    const bid = ctx.boardId || ctx.boardIds[0];
+    try {
+      const q = `query { boards(ids:[${bid}]) { workspace { id name } name } }`;
+      const r = await monday.api(q);
+      const ws = r.data?.boards?.[0]?.workspace;
+      if (ws?.id) {
+        workspaceName = ws.name || '';
+        return ws.id;
+      }
+    } catch(e) { console.warn('Falha a obter workspace do board', e); }
+  }
+
+  // Hipótese C: procurar workspace com nome "P.A 2026" entre todos
+  try {
+    const q = `query { workspaces { id name } }`;
+    const r = await monday.api(q);
+    const list = r.data?.workspaces || [];
+    const found = list.find(w =>
+      /p\.?\s?a\.?\s*2026/i.test(w.name) ||
+      /pa\s*2026/i.test(w.name)
+    );
+    if (found) {
+      workspaceName = found.name;
+      return found.id;
+    }
+    // Se só houver 1 workspace, usa esse
+    if (list.length === 1) {
+      workspaceName = list[0].name;
+      return list[0].id;
+    }
+  } catch(e) { console.warn('Falha listar workspaces', e); }
+
+  return null;
+}
+
+// Carregar todas as folders (Programas) + boards (Projectos) do workspace
+async function loadProgramas(wsId) {
+  // 1) Listar folders do workspace
+  const fQuery = `query {
+    folders(workspace_ids: [${wsId}]) {
+      id name color
+    }
+  }`;
+
+  let folders = [];
+  try {
+    const fRes = await monday.api(fQuery);
+    folders = fRes.data?.folders || [];
+  } catch(e) {
+    console.warn('Falha a carregar folders', e);
+  }
+
+  // 2) Listar TODOS os boards do workspace (com a sua folder se aplicável)
+  //    Paginamos os boards para apanhar todos.
+  let allBoards = [];
+  let page = 1;
+  while (page <= 10) {
+    const bQuery = `query {
+      boards(workspace_ids: [${wsId}], limit: 100, page: ${page}, state: active) {
+        id name description state
+      }
+    }`;
+    try {
+      const bRes = await monday.api(bQuery);
+      const list = bRes.data?.boards || [];
+      if (!list.length) break;
+      allBoards = allBoards.concat(list);
+      if (list.length < 100) break;
+      page++;
+    } catch(e) {
+      console.warn('Falha a listar boards página', page, e);
+      break;
+    }
+  }
+
+  // 3) Para cada board, obter a folder a que pertence (API monday: top_group? folder?)
+  //    A API moderna usa o campo `board_folder_id` ou similar; tentamos via field na query item-side.
+  //    Como fallback simples, fazemos 1 query extra com `board_folder_id` por chunks.
+  if (allBoards.length) {
+    const chunkSize = 25;
+    for (let i = 0; i < allBoards.length; i += chunkSize) {
+      const chunk = allBoards.slice(i, i + chunkSize);
+      const ids = chunk.map(b => b.id).join(',');
+      try {
+        const q2 = `query { boards(ids: [${ids}]) { id board_folder_id } }`;
+        const r2 = await monday.api(q2);
+        const arr = r2.data?.boards || [];
+        arr.forEach(b => {
+          const t = allBoards.find(x => String(x.id) === String(b.id));
+          if (t) t.folderId = b.board_folder_id;
+        });
+      } catch(e) {
+        // Se o campo não existir nesta versão da API, ignorar
+        console.warn('Campo board_folder_id indisponível, ignorando agrupamento por folder', e);
+        break;
+      }
+    }
+  }
+
+  // 4) Montar estrutura: Programas = folders + boards dessa folder
+  const progMap = {};
+  folders.forEach(f => {
+    progMap[f.id] = { id: f.id, name: f.name, color: f.color, boards: [] };
+  });
+
+  // Programa "sem folder" para boards soltos (se houver)
+  const looseProg = { id: '__loose__', name: 'Outros Projectos', color: '#888', boards: [] };
+
+  allBoards.forEach(b => {
+    const fid = b.folderId;
+    if (fid && progMap[fid]) {
+      progMap[fid].boards.push(b);
+    } else {
+      looseProg.boards.push(b);
+    }
+  });
+
+  const arr = Object.values(progMap);
+  if (looseProg.boards.length) arr.push(looseProg);
+
+  // Ordenar por nome (alfabético / natural — para "PROGRAMA 1, 2, 3, 4" ficar bem)
+  arr.sort((a, b) => a.name.localeCompare(b.name, 'pt', { numeric: true }));
+
+  return arr;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 2) DROPDOWNS — preencher e gerir
+// ═══════════════════════════════════════════════════════════════════════
+function populateProgramaDropdown() {
+  const sel = document.getElementById('sel-programa');
+  sel.innerHTML = '<option value="">— Selecciona um Programa —</option>';
+  programas.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.name}  (${p.boards.length} projecto${p.boards.length === 1 ? '' : 's'})`;
+    if (!p.boards.length) opt.disabled = true;
+    sel.appendChild(opt);
+  });
+
+  const hint = document.getElementById('hint-programa');
+  if (programas.length === 0) {
+    hint.textContent = '⚠️ Nenhum Programa encontrado no workspace.';
+    hint.style.color = 'var(--danger)';
+  } else {
+    hint.textContent = `${programas.length} Programa(s) disponível(is) no workspace ${workspaceName || 'P.A 2026'}.`;
+    hint.style.color = '';
+  }
+}
+
+function onProgramaChange() {
+  const sel = document.getElementById('sel-programa');
+  selectedProgramaId = sel.value || null;
+  selectedProjectoId = null;
+
+  const selProj = document.getElementById('sel-projecto');
+  const hintProj = document.getElementById('hint-projecto');
+  const step1 = document.getElementById('step-1');
+
+  if (!selectedProgramaId) {
+    selProj.innerHTML = '<option value="">— Primeiro selecciona um Programa —</option>';
+    selProj.disabled = true;
+    hintProj.textContent = 'Os projectos aparecem após escolheres o Programa.';
+    step1.classList.remove('done');
+    showInitialState();
+    return;
+  }
+
+  step1.classList.add('done');
+  const prog = programas.find(p => String(p.id) === String(selectedProgramaId));
+  if (!prog) return;
+
+  selProj.innerHTML = '<option value="">— Selecciona um Projecto —</option>';
+  prog.boards.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.id;
+    opt.textContent = b.name;
+    selProj.appendChild(opt);
+  });
+  selProj.disabled = false;
+  hintProj.textContent = `${prog.boards.length} projecto(s) no Programa "${prog.name}". Escolhe um para gerar o relatório.`;
+
+  showSelectProjectoState(prog);
+}
+
+async function onProjectoChange() {
+  const sel = document.getElementById('sel-projecto');
+  selectedProjectoId = sel.value || null;
+  const step2 = document.getElementById('step-2');
+
+  if (!selectedProjectoId) {
+    step2.classList.remove('done');
+    const prog = programas.find(p => String(p.id) === String(selectedProgramaId));
+    if (prog) showSelectProjectoState(prog);
+    document.getElementById('print-btn').disabled = true;
+    return;
+  }
+
+  step2.classList.add('done');
+  await loadAndRenderProjecto(selectedProjectoId);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 3) ESTADOS DE UI
+// ═══════════════════════════════════════════════════════════════════════
+function showInitialState() {
+  document.getElementById('root').innerHTML = `
+    <div class="state-card">
+      <div class="icon">📂</div>
+      <h3>Selecciona um Programa</h3>
+      <p>Escolhe um <strong>Programa</strong> na lista acima para ver os Projectos disponíveis e gerar o respectivo relatório.</p>
+    </div>`;
+  document.getElementById('debug-btn').style.display = 'none';
+  document.getElementById('print-btn').disabled = true;
+}
+
+function showSelectProjectoState(prog) {
+  const boardList = prog.boards.map(b => `
+    <li style="padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px;display:flex;justify-content:space-between;align-items:center;">
+      <span>📋 ${b.name}</span>
+      <button class="btn-icon" style="background:var(--brand);height:26px;padding:0 10px;font-size:11px;" onclick="selectProjectoFromList('${b.id}')">Abrir →</button>
+    </li>`).join('');
+
+  document.getElementById('root').innerHTML = `
+    <div class="report-header" style="padding:1.25rem 1.5rem;">
+      <div class="report-meta">Programa Seleccionado</div>
+      <div class="report-title" style="font-size:22px;">${prog.name}</div>
+      <div class="report-desc">${prog.boards.length} projecto(s) neste Programa. Escolhe um na lista abaixo ou no dropdown acima.</div>
+    </div>
+    <div class="items-card">
+      <ul style="list-style:none;">${boardList || '<li style="padding:1rem;color:var(--text-muted);">Sem projectos.</li>'}</ul>
+    </div>`;
+  document.getElementById('debug-btn').style.display = 'none';
+  document.getElementById('print-btn').disabled = true;
+}
+
+function selectProjectoFromList(boardId) {
+  const sel = document.getElementById('sel-projecto');
+  sel.value = boardId;
+  onProjectoChange();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 4) CARREGAR PROJECTO (board) — query GraphQL completa
 // ═══════════════════════════════════════════════════════════════════════
 async function loadBoardData(boardId) {
-  // Primeiro passo: descobrir todas as colunas do board
+  // Passo 1: metadados + colunas
   const colQuery = `query {
     boards(ids: [${boardId}]) {
       id name description
       columns { id title type }
     }
   }`;
-
   const colRes = await monday.api(colQuery);
   const boardMeta = colRes.data?.boards?.[0];
-  if (!boardMeta) throw new Error('Board não encontrado ou sem permissões.');
+  if (!boardMeta) throw new Error('Projecto não encontrado ou sem permissões.');
 
-  const columns = boardMeta.columns || [];
-
-  // Segundo passo: carregar todos os items com paginação
+  // Passo 2: items com paginação por cursor
   let allItems = [];
   let cursor = null;
   let hasMore = true;
   let page = 0;
+  let groups = [];
 
-  while (hasMore && page < 10) { // máx 10 páginas = 2000 items
+  while (hasMore && page < 10) {
     page++;
-    const limitClause = cursor
-      ? `limit: 200, cursor: "${cursor}"`
-      : `limit: 200`;
-
+    const limitClause = cursor ? `limit: 200, cursor: "${cursor}"` : `limit: 200`;
     const itemQuery = `query {
       boards(ids: [${boardId}]) {
         groups { id title color position }
@@ -322,66 +595,42 @@ async function loadBoardData(boardId) {
         }
       }
     }`;
-
     const itemRes = await monday.api(itemQuery);
     const board = itemRes.data?.boards?.[0];
     if (!board) break;
-
-    const page_data = board.items_page || {};
-    const items = page_data.items || [];
+    const pageData = board.items_page || {};
+    const items = pageData.items || [];
     allItems = allItems.concat(items);
+    if (page === 1) groups = board.groups || [];
 
-    if (page_data.cursor && items.length === 200) {
-      cursor = page_data.cursor;
-    } else {
-      hasMore = false;
-    }
-
-    // Guardar grupos da primeira página
-    if (page === 1) {
-      boardMeta.groups = board.groups || [];
-    }
+    if (pageData.cursor && items.length === 200) cursor = pageData.cursor;
+    else hasMore = false;
   }
 
+  boardMeta.groups = groups;
   boardMeta.allItems = allItems;
   return boardMeta;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// Transformar dados do board em estrutura do relatório
+// 5) RELATÓRIO — construir + renderizar
 // ═══════════════════════════════════════════════════════════════════════
 function buildReport(boardData) {
   const items = boardData.allItems || [];
   const groups = boardData.groups || [];
   const columns = boardData.columns || [];
 
-  // Agrupar items por grupo
   const groupMap = {};
-  groups.forEach(g => {
-    groupMap[g.id] = { ...g, items: [] };
-  });
-
+  groups.forEach(g => { groupMap[g.id] = { ...g, items: [] }; });
   items.forEach(item => {
     const gid = item.group?.id;
-    if (gid && groupMap[gid]) {
-      groupMap[gid].items.push(item);
-    } else {
-      // Item sem grupo identificado — criar grupo genérico
-      if (!groupMap['__other__']) {
-        groupMap['__other__'] = { id: '__other__', title: 'Geral', color: '#c4c4c4', items: [] };
-      }
+    if (gid && groupMap[gid]) groupMap[gid].items.push(item);
+    else {
+      if (!groupMap['__other__']) groupMap['__other__'] = { id:'__other__', title:'Geral', color:'#c4c4c4', items:[] };
       groupMap['__other__'].items.push(item);
     }
   });
-
-  // Ordenar grupos por posição
-  const orderedGroups = Object.values(groupMap).sort((a, b) => {
-    if (a.position !== undefined && b.position !== undefined) return a.position - b.position;
-    return 0;
-  });
-
-  // Detectar colunas importantes automaticamente
-  const colTitles = columns.map(c => c.title.toLowerCase());
+  const orderedGroups = Object.values(groupMap).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 
   const detectCol = (...keywords) => {
     for (const kw of keywords) {
@@ -390,124 +639,69 @@ function buildReport(boardData) {
     }
     return null;
   };
-
   const colMeta = {
-    responsavel:  detectCol('responsável', 'responsavel', 'pessoa', 'owner', 'assignee', 'atribuído', 'pm'),
-    status:       detectCol('status', 'estado'),
-    progress:     detectCol('progress', 'progresso', 'percentagem', '%'),
-    prazo:        detectCol('prazo', 'deadline', 'data fim', 'término', 'fim', 'end', 'date'),
-    inicio:       detectCol('início', 'inicio', 'start', 'data início', 'data ini'),
-    orcamento:    detectCol('orçamento', 'orcamento', 'budget', 'custo total'),
-    gasto:        detectCol('gasto', 'spent', 'executado', 'realizado', 'custo real'),
+    responsavel:  detectCol('responsável','responsavel','pessoa','owner','assignee','atribuído','pm'),
+    status:       detectCol('status','estado'),
+    progress:     detectCol('progress','progresso','percentagem','%'),
+    prazo:        detectCol('prazo','deadline','data fim','término','fim','end','date'),
     meta:         detectCol('meta'),
-    kpis:         detectCol('kpis', 'kpi'),
-    acoes:        detectCol('acções', 'acoes', 'acção', 'acao', 'actions'),
-    f1:           detectCol('f1'),
-    f2:           detectCol('f2'),
-    f3:           detectCol('f3'),
-    f4:           detectCol('f4'),
-    percentagens: detectCol('percentagens', 'percentagem total'),
-    preal:        detectCol('p.real', 'preal', 'progresso real', 'real'),
-    pds:          detectCol('pds'),
-    notas:        detectCol('notas', 'notes', 'observações', 'observacoes', 'comentários'),
+    kpis:         detectCol('kpis','kpi'),
+    acoes:        detectCol('acções','acoes','acção','acao','actions'),
+    f1: detectCol('f1'), f2: detectCol('f2'), f3: detectCol('f3'), f4: detectCol('f4'),
+    percentagens: detectCol('percentagens','percentagem total'),
+    preal: detectCol('p.real','preal','progresso real','real'),
+    pds: detectCol('pds'),
   };
 
-  // Stats globais
   const totalItems = items.length;
-  const doneItems = items.filter(i => {
-    const s = getCol(i, ...[colMeta.status, 'status', 'estado'].filter(Boolean));
-    return statusClass(s) === 's-done';
-  }).length;
-
-  // Progresso global (média dos progresso%)
+  const doneItems = items.filter(i => statusClass(getCol(i, colMeta.status, 'status')) === 's-done').length;
   let totalProg = 0, progCount = 0;
   items.forEach(i => {
-    const raw = getCol(i, ...[colMeta.progress, 'progresso', 'progress', '%'].filter(Boolean));
-    const n = parseFloat(raw);
+    const n = parseFloat(getCol(i, colMeta.progress, 'progresso', '%'));
     if (!isNaN(n)) { totalProg += n; progCount++; }
   });
   const avgProgress = progCount > 0 ? Math.round(totalProg / progCount) : Math.round((doneItems / (totalItems || 1)) * 100);
 
-  return {
-    name: boardData.name,
-    desc: boardData.description || '',
-    colMeta,
-    columns,
-    orderedGroups,
-    totalItems,
-    doneItems,
-    avgProgress,
-  };
+  return { name: boardData.name, desc: boardData.description || '', colMeta, columns, orderedGroups, totalItems, doneItems, avgProgress };
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// Renderizar
-// ═══════════════════════════════════════════════════════════════════════
-function renderReport(data) {
+function renderReport(data, programaName) {
   const root = document.getElementById('root');
   const { name, desc, colMeta, columns, orderedGroups, totalItems, doneItems, avgProgress } = data;
   const p = avgProgress;
-
-  // Status global
   const allDone = doneItems === totalItems && totalItems > 0;
-  const anyStuck = orderedGroups.some(g => g.items.some(i => {
-    const s = getCol(i, ...[colMeta.status, 'status'].filter(Boolean));
-    return statusClass(s) === 's-stuck';
-  }));
+  const anyStuck = orderedGroups.some(g => g.items.some(i => statusClass(getCol(i, colMeta.status, 'status')) === 's-stuck'));
   const globalStatus = allDone ? 'Concluído' : anyStuck ? 'Em Risco' : p > 0 ? 'Em Curso' : 'Não Iniciado';
   const globalSC = statusClass(globalStatus);
 
-  // Coluna de status global top
-  let statusTop = '';
-  orderedGroups.forEach(g => g.items.forEach(i => {
-    if (!statusTop) statusTop = getCol(i, ...[colMeta.status, 'status', 'estado'].filter(Boolean));
-  }));
-
-  // Render grupos como tabelas KPI expandidas
   let groupsHTML = '';
-  orderedGroups.forEach((g, gi) => {
+  orderedGroups.forEach(g => {
     if (!g.items.length) return;
-
     const color = g.color || '#c4c4c4';
-    const groupItems = g.items;
 
-    // Detectar se este grupo tem colunas KPI (meta, kpis, f1-f4, preal, pds)
-    const hasKPICols = colMeta.meta || colMeta.kpis || colMeta.f1 || colMeta.preal || colMeta.pds;
-
-    // Construir cabeçalhos dinamicamente com base nas colunas disponíveis
     const showCols = [];
-    if (colMeta.responsavel) showCols.push({ key: 'responsavel', label: 'Responsável', col: colMeta.responsavel });
-    if (colMeta.meta)        showCols.push({ key: 'meta', label: 'Meta', col: colMeta.meta });
-    if (colMeta.kpis)        showCols.push({ key: 'kpis', label: 'KPIs', col: colMeta.kpis });
-    if (colMeta.progress)    showCols.push({ key: 'progress', label: 'Progresso(%)', col: colMeta.progress });
-    if (colMeta.f1)          showCols.push({ key: 'f1', label: 'F1', col: colMeta.f1 });
-    if (colMeta.f2)          showCols.push({ key: 'f2', label: 'F2', col: colMeta.f2 });
-    if (colMeta.f3)          showCols.push({ key: 'f3', label: 'F3', col: colMeta.f3 });
-    if (colMeta.f4)          showCols.push({ key: 'f4', label: 'F4', col: colMeta.f4 });
-    if (colMeta.percentagens) showCols.push({ key: 'percentagens', label: 'Percentagens', col: colMeta.percentagens });
-    if (colMeta.preal)       showCols.push({ key: 'preal', label: 'P.Real', col: colMeta.preal });
-    if (colMeta.pds)         showCols.push({ key: 'pds', label: 'PDS', col: colMeta.pds });
-    if (colMeta.prazo)       showCols.push({ key: 'prazo', label: 'Prazo', col: colMeta.prazo });
-    if (colMeta.acoes)       showCols.push({ key: 'acoes', label: 'Acções', col: colMeta.acoes });
-    if (colMeta.status)      showCols.push({ key: 'status', label: 'Estado', col: colMeta.status });
+    if (colMeta.responsavel) showCols.push({ key:'responsavel', label:'Responsável', col:colMeta.responsavel });
+    if (colMeta.meta)        showCols.push({ key:'meta', label:'Meta', col:colMeta.meta });
+    if (colMeta.kpis)        showCols.push({ key:'kpis', label:'KPIs', col:colMeta.kpis });
+    if (colMeta.progress)    showCols.push({ key:'progress', label:'Progresso(%)', col:colMeta.progress });
+    if (colMeta.f1) showCols.push({ key:'f1', label:'F1', col:colMeta.f1 });
+    if (colMeta.f2) showCols.push({ key:'f2', label:'F2', col:colMeta.f2 });
+    if (colMeta.f3) showCols.push({ key:'f3', label:'F3', col:colMeta.f3 });
+    if (colMeta.f4) showCols.push({ key:'f4', label:'F4', col:colMeta.f4 });
+    if (colMeta.percentagens) showCols.push({ key:'percentagens', label:'Percentagens', col:colMeta.percentagens });
+    if (colMeta.preal)        showCols.push({ key:'preal', label:'P.Real', col:colMeta.preal });
+    if (colMeta.pds)          showCols.push({ key:'pds', label:'PDS', col:colMeta.pds });
+    if (colMeta.prazo)        showCols.push({ key:'prazo', label:'Prazo', col:colMeta.prazo });
+    if (colMeta.acoes)        showCols.push({ key:'acoes', label:'Acções', col:colMeta.acoes });
+    if (colMeta.status)       showCols.push({ key:'status', label:'Estado', col:colMeta.status });
 
-    // Fallback: se nenhuma coluna detectada, mostrar todas
-    let fallbackCols = [];
-    if (showCols.length === 0) {
-      // Usar as primeiras colunas significativas
-      fallbackCols = columns.slice(0, 8).map(c => ({ key: c.id, label: c.title, col: c.title }));
-    }
-
-    const activeCols = showCols.length > 0 ? showCols : fallbackCols;
+    let activeCols = showCols;
+    if (!activeCols.length) activeCols = columns.slice(0, 8).map(c => ({ key:c.id, label:c.title, col:c.title }));
 
     const theadCells = activeCols.map(c => `<th>${c.label}</th>`).join('');
-
-    const rows = groupItems.map(item => {
-      const allCols = getAllCols(item);
-
+    const rows = g.items.map(item => {
       const cells = activeCols.map(c => {
         const val = getCol(item, c.col) || '';
-
         if (c.key === 'status') {
           const sc = statusClass(val);
           return `<td><span class="status-pill ${sc}">${val || '—'}</span></td>`;
@@ -531,18 +725,11 @@ function renderReport(data) {
           const num = parseFloat(val) || 0;
           return `<td style="font-weight:600;color:${progressColor(num)};">${val || '—'}</td>`;
         }
-        if (c.key === 'responsavel') {
-          return `<td class="td-muted">${val || '—'}</td>`;
-        }
-        if (c.key === 'acoes') {
-          return `<td style="font-size:11px;color:var(--brand-mid);max-width:180px;">${val || '—'}</td>`;
-        }
-        if (c.key === 'pds') {
-          return `<td style="font-size:11px;max-width:200px;word-break:break-word;">${val || '—'}</td>`;
-        }
+        if (c.key === 'responsavel') return `<td class="td-muted">${val || '—'}</td>`;
+        if (c.key === 'acoes') return `<td style="font-size:11px;color:var(--brand-mid);max-width:180px;">${val || '—'}</td>`;
+        if (c.key === 'pds') return `<td style="font-size:11px;max-width:200px;word-break:break-word;">${val || '—'}</td>`;
         return `<td class="${!val ? 'td-muted' : ''}">${val || '—'}</td>`;
       }).join('');
-
       return `<tr><td class="td-name">${item.name}</td>${cells}</tr>`;
     }).join('');
 
@@ -551,7 +738,7 @@ function renderReport(data) {
         <div class="group-header" style="background:${color}22;color:${color};border:1px solid ${color}44;border-bottom:none;">
           <div class="group-color-bar" style="background:${color};"></div>
           ${g.title}
-          <span style="margin-left:auto;font-size:10px;opacity:0.7;">${groupItems.length} item(s)</span>
+          <span style="margin-left:auto;font-size:10px;opacity:0.7;">${g.items.length} item(s)</span>
         </div>
         <div class="items-card no-top-radius" style="overflow-x:auto;">
           <table>
@@ -562,13 +749,12 @@ function renderReport(data) {
       </div>`;
   });
 
-  // Debug: listar todas as colunas do board
   const debugHTML = `
     <div id="debug-section" style="display:${showDebug ? 'block' : 'none'};">
       <div class="section">
         <div class="section-title">🔍 Diagnóstico de Colunas</div>
         <div class="debug-box">
-          <h4>Colunas detectadas no board (${columns.length} total)</h4>
+          <h4>Colunas detectadas no projecto (${columns.length} total)</h4>
           <table style="width:100%;border-collapse:collapse;">
             <tr style="color:#fbbf24;"><th style="text-align:left;padding:2px 8px;">Título</th><th style="text-align:left;padding:2px 8px;">Tipo</th><th style="text-align:left;padding:2px 8px;">Mapeado como</th></tr>
             ${columns.map(c => {
@@ -580,8 +766,6 @@ function renderReport(data) {
               </tr>`;
             }).join('')}
           </table>
-          <div style="margin-top:8px;color:#fbbf24;">Exemplo do 1.º item:</div>
-          ${orderedGroups[0]?.items[0] ? `<pre style="margin-top:4px;white-space:pre-wrap;">${JSON.stringify(getAllCols(orderedGroups[0].items[0]), null, 2)}</pre>` : '(sem items)'}
         </div>
       </div>
     </div>`;
@@ -589,8 +773,9 @@ function renderReport(data) {
   root.innerHTML = `
     <div class="report-header">
       <div class="report-meta">P.A 2026 — Relatório de Projecto</div>
+      ${programaName ? `<span class="report-prog-tag">📁 ${programaName}</span>` : ''}
       <div class="report-title">${name}</div>
-      <div class="report-desc">${desc || '<em style="opacity:0.6;">Sem descrição definida no board.</em>'}</div>
+      <div class="report-desc">${desc || '<em style="opacity:0.6;">Sem descrição definida no projecto.</em>'}</div>
       <div class="report-badges">
         <span class="badge badge-white">🏷 ${globalStatus}</span>
         <span class="badge badge-white">📋 ${totalItems} item(s)</span>
@@ -607,7 +792,7 @@ function renderReport(data) {
       <div class="stat-card">
         <div class="stat-label">Tarefas Concluídas</div>
         <div class="stat-value">${doneItems} / ${totalItems}</div>
-        <div class="stat-sub">de ${totalItems} tarefa(s) total</div>
+        <div class="stat-sub">de ${totalItems} tarefa(s)</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Grupos</div>
@@ -629,17 +814,100 @@ function renderReport(data) {
 
     <div class="section">
       <div class="section-title">📌 Tarefas &amp; Indicadores</div>
-      ${groupsHTML || '<div class="empty-section">Sem tarefas registadas.</div>'}
+      ${groupsHTML || '<div class="empty-section">Sem tarefas registadas neste projecto.</div>'}
     </div>
 
     <div class="footer-meta">
-      Relatório gerado em ${new Date().toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' })} às ${new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })} — Sistema de Gestão P.A 2026
+      Relatório gerado em ${new Date().toLocaleDateString('pt-PT', { day:'2-digit', month:'long', year:'numeric' })} às ${new Date().toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' })} — Sistema P.A 2026
     </div>
   `;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// Images
+// 6) ORQUESTRAÇÃO
+// ═══════════════════════════════════════════════════════════════════════
+async function loadAndRenderProjecto(boardId) {
+  try {
+    document.getElementById('root').innerHTML = `
+      <div class="loading-overlay">
+        <div class="spinner-lg"></div>
+        <div style="color:var(--text-muted);font-size:13px;">A carregar dados do projecto…</div>
+      </div>`;
+    document.getElementById('print-btn').disabled = true;
+
+    const boardData = await loadBoardData(boardId);
+    currentBoardData = boardData;
+    await loadStoredImages(boardId);
+
+    const prog = programas.find(p => String(p.id) === String(selectedProgramaId));
+    const report = buildReport(boardData);
+    renderReport(report, prog?.name);
+
+    document.getElementById('debug-btn').style.display = 'flex';
+    document.getElementById('print-btn').disabled = false;
+    toast(`✓ ${boardData.allItems?.length || 0} item(s) carregado(s)`);
+  } catch (e) {
+    console.error(e);
+    document.getElementById('root').innerHTML = `
+      <div class="state-card">
+        <div class="icon">⚠️</div>
+        <h3>Erro ao carregar projecto</h3>
+        <p>${e.message}</p>
+      </div>`;
+    toast('Erro: ' + e.message, 'err');
+  }
+}
+
+async function initWorkspace(ctx) {
+  document.getElementById('root').innerHTML = `
+    <div class="loading-overlay">
+      <div class="spinner-lg"></div>
+      <div style="color:var(--text-muted);font-size:13px;">A descobrir Programas no workspace P.A 2026…</div>
+    </div>`;
+
+  workspaceId = await detectWorkspace(ctx);
+  if (!workspaceId) {
+    document.getElementById('root').innerHTML = `
+      <div class="state-card">
+        <div class="icon">📁</div>
+        <h3>Workspace P.A 2026 não encontrado</h3>
+        <p>A app não conseguiu identificar automaticamente o workspace. Instala-a como <strong>Workspace App</strong> dentro do workspace P.A 2026, ou como <strong>Board View</strong> num dos seus boards.</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('board-sub').textContent = `Workspace: ${workspaceName || 'P.A 2026'}`;
+
+  try {
+    programas = await loadProgramas(workspaceId);
+  } catch(e) {
+    console.error(e);
+    document.getElementById('root').innerHTML = `
+      <div class="state-card">
+        <div class="icon">⚠️</div>
+        <h3>Erro a carregar Programas</h3>
+        <p>${e.message}</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('selector-bar').style.display = 'grid';
+  populateProgramaDropdown();
+  showInitialState();
+  toast(`✓ ${programas.length} Programa(s) carregado(s)`);
+}
+
+async function reloadWorkspace() {
+  // Limpar selecção e recarregar
+  selectedProgramaId = null;
+  selectedProjectoId = null;
+  document.getElementById('step-1').classList.remove('done');
+  document.getElementById('step-2').classList.remove('done');
+  await initWorkspace({ workspaceId });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// IMAGENS (storage por board)
 // ═══════════════════════════════════════════════════════════════════════
 function renderImages() {
   if (!projectImages.length) {
@@ -695,12 +963,13 @@ function removeImage(idx) {
 }
 
 function saveImages() {
-  if (monday && currentBoardId) {
-    monday.storage.instance.setItem(`images_${currentBoardId}`, JSON.stringify(projectImages)).catch(() => {});
+  if (monday && selectedProjectoId) {
+    monday.storage.instance.setItem(`images_${selectedProjectoId}`, JSON.stringify(projectImages)).catch(() => {});
   }
 }
 
 async function loadStoredImages(boardId) {
+  projectImages = [];
   if (!monday) return;
   try {
     const res = await monday.storage.instance.getItem(`images_${boardId}`);
@@ -709,7 +978,7 @@ async function loadStoredImages(boardId) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// Demo
+// DEMO
 // ═══════════════════════════════════════════════════════════════════════
 function showDemo() {
   document.getElementById('banner').classList.add('show');
@@ -718,77 +987,29 @@ function showDemo() {
     <div class="state-card">
       <div class="icon">🔌</div>
       <h3>Modo Demo — Sem ligação ao monday</h3>
-      <p>Esta app deve ser instalada como <strong>Board View</strong> num board do P.A 2026. Fora do monday, não é possível carregar dados reais.</p>
-      <p style="margin-top:0.75rem;font-size:11px;opacity:0.7;">Abre esta app dentro do monday.com num board com itens para ver o relatório completo.</p>
+      <p>Esta app precisa de correr dentro do <strong>monday.com</strong> para listar os Programas e Projectos do workspace P.A 2026.</p>
+      <p style="margin-top:0.75rem;font-size:11px;opacity:0.7;">Instala como <strong>Workspace App</strong> ou <strong>Board View</strong> dentro de qualquer board do P.A 2026.</p>
     </div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// Main
+// INIT
 // ═══════════════════════════════════════════════════════════════════════
-async function loadAndRender() {
-  try {
-    document.getElementById('root').innerHTML = `
-      <div class="loading-overlay">
-        <div class="spinner-lg"></div>
-        <div style="color:var(--text-muted);font-size:13px;">A carregar todos os dados do board…</div>
-      </div>`;
-
-    const boardData = await loadBoardData(currentBoardId);
-    lastBoardData = boardData;
-    currentBoardName = boardData.name;
-    document.getElementById('board-sub').textContent = `${boardData.name} · P.A 2026`;
-    document.getElementById('debug-btn').style.display = 'flex';
-
-    await loadStoredImages(currentBoardId);
-
-    const reportData = buildReport(boardData);
-    renderReport(reportData);
-
-    const total = boardData.allItems?.length || 0;
-    const pages = Math.ceil(total / 200);
-    toast(`✓ ${total} item(s) carregado(s)${pages > 1 ? ` (${pages} páginas)` : ''}`);
-  } catch (e) {
-    console.error(e);
-    document.getElementById('root').innerHTML = `
-      <div class="state-card">
-        <div class="icon">⚠️</div>
-        <h3>Erro ao carregar</h3>
-        <p>${e.message}</p>
-      </div>`;
-    toast('Erro: ' + e.message, 'err');
-  }
-}
-
-function reload() {
-  if (currentBoardId) loadAndRender();
-  else showDemo();
-}
-
 async function init() {
-  if (!monday) {
-    showDemo();
-    return;
-  }
+  if (!monday) { showDemo(); return; }
 
+  let initialised = false;
   monday.listen('context', async (res) => {
-    const ctx = res.data;
-    if (!ctx) return;
-    currentBoardId = ctx.boardId || ctx.boardIds?.[0];
-    if (!currentBoardId) {
-      document.getElementById('root').innerHTML = `
-        <div class="state-card">
-          <div class="icon">📋</div>
-          <h3>Sem contexto de board</h3>
-          <p>Adicione esta vista a um board do P.A 2026.</p>
-        </div>`;
-      return;
-    }
-    await loadAndRender();
+    if (initialised) return;
+    initialised = true;
+    await initWorkspace(res.data || {});
   });
 
-  setTimeout(() => {
-    if (!currentBoardId) showDemo();
+  // Fallback se o contexto não chegar em 3s
+  setTimeout(async () => {
+    if (initialised) return;
+    initialised = true;
+    await initWorkspace({});
   }, 3000);
 }
 
