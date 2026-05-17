@@ -4,119 +4,153 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerador de Relatórios — P.A 2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
-<!-- monday SDK: dá acesso ao contexto e à API automaticamente, sem token -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/monday-sdk-js@0.5.6/dist/main.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --brand: #14304A; --brand-mid: #2C5F8A; --brand-light: #EAF1F8;
-    --accent: #C8963E; --accent-light: #FDF3E3;
-    --success: #2D7D52; --success-bg: #E8F5EE;
-    --warning: #B8650A; --warning-bg: #FEF3E2;
-    --danger: #B03030; --danger-bg: #FCEAEA;
-    --border: #DCE3EC; --bg: #F5F7FA; --white: #FFFFFF;
-    --text: #1A2535; --text-muted: #6B7A90;
-    --font-display: 'Fraunces', Georgia, serif;
-    --font-body: 'Inter Tight', system-ui, sans-serif;
-    --radius: 10px; --radius-sm: 6px;
-  }
-  body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --brand: #14304A; --brand-mid: #2C5F8A; --brand-light: #EAF1F8;
+  --accent: #C8963E; --accent-light: #FDF3E3;
+  --success: #2D7D52; --success-bg: #E8F5EE;
+  --warning: #B8650A; --warning-bg: #FEF3E2;
+  --danger: #B03030; --danger-bg: #FCEAEA;
+  --info: #1a6fa8; --info-bg: #e8f3fc;
+  --neutral: #555f6e; --neutral-bg: #eef0f3;
+  --border: #DCE3EC; --bg: #F5F7FA; --white: #FFFFFF;
+  --text: #1A2535; --text-muted: #6B7A90;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter Tight', system-ui, sans-serif;
+  --radius: 10px; --radius-sm: 6px;
+}
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
 
-  /* TOPBAR */
-  .topbar { background: var(--brand); color: white; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 52px; }
-  .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .topbar-logo { width: 32px; height: 32px; border-radius: 7px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white; font-family: var(--font-display); }
-  .topbar-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
-  .topbar-sub { font-size: 11px; opacity: 0.55; margin-top: 1px; }
-  .topbar-actions { display: flex; gap: 6px; }
-  .btn-icon { background: rgba(255,255,255,0.10); border: none; border-radius: 6px; color: white; height: 34px; padding: 0 12px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: background 0.2s; font-family: var(--font-body); font-weight: 500; }
-  .btn-icon:hover { background: rgba(255,255,255,0.22); }
+/* TOPBAR */
+.topbar { background: var(--brand); color: white; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 52px; }
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-logo { width: 32px; height: 32px; border-radius: 7px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white; font-family: var(--font-display); }
+.topbar-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; }
+.topbar-sub { font-size: 11px; opacity: 0.55; margin-top: 1px; }
+.topbar-actions { display: flex; gap: 6px; }
+.btn-icon { background: rgba(255,255,255,0.10); border: none; border-radius: 6px; color: white; height: 34px; padding: 0 12px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: background 0.2s; font-family: var(--font-body); font-weight: 500; }
+.btn-icon:hover { background: rgba(255,255,255,0.22); }
+.btn-icon.active { background: rgba(200,150,62,0.35); }
 
-  .container { padding: 1.25rem; max-width: 1200px; margin: 0 auto; }
+.container { padding: 1.25rem; max-width: 1200px; margin: 0 auto; }
 
-  /* STATE CARDS */
-  .state-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 2.5rem 2rem; text-align: center; color: var(--text-muted); max-width: 560px; margin: 2rem auto; }
-  .state-card .icon { font-size: 40px; margin-bottom: 0.75rem; opacity: 0.5; }
-  .state-card h3 { font-family: var(--font-display); font-size: 20px; color: var(--text); margin-bottom: 0.5rem; font-weight: 600; }
-  .state-card p { font-size: 13px; line-height: 1.6; }
+/* STATE CARDS */
+.state-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 2.5rem 2rem; text-align: center; color: var(--text-muted); max-width: 560px; margin: 2rem auto; }
+.state-card .icon { font-size: 40px; margin-bottom: 0.75rem; }
+.state-card h3 { font-family: var(--font-display); font-size: 20px; color: var(--text); margin-bottom: 0.5rem; }
+.state-card p { font-size: 13px; line-height: 1.6; }
 
-  .loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 4rem 2rem; }
-  .spinner-lg { width: 38px; height: 38px; border: 3px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 4rem 2rem; }
+.spinner-lg { width: 38px; height: 38px; border: 3px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  /* REPORT HEADER */
-  .report-header { background: linear-gradient(135deg, var(--brand) 0%, #1f4a72 100%); border-radius: var(--radius); padding: 1.75rem 1.85rem 1.4rem; color: white; margin-bottom: 1.25rem; position: relative; overflow: hidden; }
-  .report-header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,0.04); }
-  .report-header::after { content: ''; position: absolute; bottom: -50px; right: 60px; width: 110px; height: 110px; border-radius: 50%; background: rgba(200,150,62,0.18); }
-  .report-meta { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.65; margin-bottom: 0.5rem; font-weight: 500; }
-  .report-title { font-family: var(--font-display); font-size: 28px; font-weight: 600; margin-bottom: 0.7rem; line-height: 1.15; letter-spacing: -0.015em; }
-  .report-desc { font-size: 13.5px; opacity: 0.82; line-height: 1.6; max-width: 620px; margin-bottom: 1rem; }
-  .report-badges { display: flex; gap: 7px; flex-wrap: wrap; }
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 500; }
-  .badge-white { background: rgba(255,255,255,0.13); color: white; }
+/* REPORT HEADER */
+.report-header { background: linear-gradient(135deg, var(--brand) 0%, #1f4a72 100%); border-radius: var(--radius); padding: 1.75rem 1.85rem 1.4rem; color: white; margin-bottom: 1.25rem; position: relative; overflow: hidden; }
+.report-header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+.report-header::after { content: ''; position: absolute; bottom: -50px; right: 60px; width: 110px; height: 110px; border-radius: 50%; background: rgba(200,150,62,0.18); }
+.report-meta { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.65; margin-bottom: 0.5rem; font-weight: 500; }
+.report-title { font-family: var(--font-display); font-size: 28px; font-weight: 600; margin-bottom: 0.7rem; line-height: 1.15; }
+.report-desc { font-size: 13.5px; opacity: 0.82; line-height: 1.6; max-width: 620px; margin-bottom: 1rem; }
+.report-badges { display: flex; gap: 7px; flex-wrap: wrap; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 500; }
+.badge-white { background: rgba(255,255,255,0.13); color: white; }
 
-  /* STATS */
-  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 0.85rem; margin-bottom: 1.25rem; }
-  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; }
-  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 500; }
-  .stat-value { font-size: 24px; font-weight: 600; color: var(--text); font-family: var(--font-display); letter-spacing: -0.01em; }
-  .stat-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
-  .progress-wrap { background: var(--border); border-radius: 99px; height: 5px; overflow: hidden; margin-top: 9px; }
-  .progress-fill { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
+/* STATS */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 0.85rem; margin-bottom: 1.25rem; }
+.stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; }
+.stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 500; }
+.stat-value { font-size: 24px; font-weight: 600; color: var(--text); font-family: var(--font-display); letter-spacing: -0.01em; }
+.stat-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+.progress-wrap { background: var(--border); border-radius: 99px; height: 5px; overflow: hidden; margin-top: 9px; }
+.progress-fill { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
 
-  /* SECTIONS */
-  .section { margin-bottom: 1.25rem; }
-  .section-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--brand); margin-bottom: 0.85rem; display: flex; align-items: center; gap: 8px; letter-spacing: -0.01em; }
-  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+/* SECTIONS */
+.section { margin-bottom: 1.25rem; }
+.section-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--brand); margin-bottom: 0.85rem; display: flex; align-items: center; gap: 8px; }
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  /* IMAGES */
-  .image-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr)); gap: 0.85rem; }
-  .image-block { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .image-block img { width: 100%; height: 180px; object-fit: cover; display: block; }
-  .img-caption { padding: 0.6rem 0.85rem; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .img-remove { color: var(--danger); cursor: pointer; font-size: 11px; background: none; border: none; padding: 2px 6px; border-radius: 3px; }
-  .img-remove:hover { background: var(--danger-bg); }
-  .image-upload-zone { width: 100%; height: 140px; border: 2px dashed var(--border); border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: var(--bg); transition: all 0.2s; gap: 6px; color: var(--text-muted); font-size: 12.5px; }
-  .image-upload-zone:hover { border-color: var(--brand-mid); background: var(--brand-light); color: var(--brand); }
-  .image-upload-zone input { display: none; }
+/* GROUPS */
+.group-block { margin-bottom: 1.25rem; }
+.group-header { display: flex; align-items: center; gap: 10px; padding: 0.65rem 1rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0; font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+.group-color-bar { width: 4px; height: 18px; border-radius: 2px; flex-shrink: 0; }
 
-  /* TABLE */
-  .items-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  table { width: 100%; border-collapse: collapse; }
-  thead th { background: var(--bg); padding: 10px 14px; font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); }
-  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--bg); }
-  tbody td { padding: 10px 14px; font-size: 12.5px; color: var(--text); }
-  .status-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; white-space: nowrap; }
-  .s-done { background: var(--success-bg); color: var(--success); }
-  .s-progress { background: var(--warning-bg); color: var(--warning); }
-  .s-stuck { background: var(--danger-bg); color: var(--danger); }
-  .s-waiting { background: var(--brand-light); color: var(--brand); }
-  .s-blank { background: #eef0f3; color: #888; }
+/* TABLE */
+.items-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.items-card.no-top-radius { border-radius: 0 0 var(--radius) var(--radius); }
+table { width: 100%; border-collapse: collapse; }
+thead th { background: var(--bg); padding: 9px 12px; font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg); }
+tbody td { padding: 9px 12px; font-size: 12px; color: var(--text); vertical-align: middle; }
+.td-name { font-weight: 500; max-width: 260px; }
+.td-muted { color: var(--text-muted); }
 
-  .notes-block { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 0.9rem 1.1rem; font-size: 13px; color: var(--text); line-height: 1.65; }
+/* PILLS */
+.status-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.s-done     { background: var(--success-bg); color: var(--success); }
+.s-progress { background: var(--warning-bg); color: var(--warning); }
+.s-stuck    { background: var(--danger-bg); color: var(--danger); }
+.s-waiting  { background: var(--brand-light); color: var(--brand); }
+.s-blank    { background: var(--neutral-bg); color: var(--neutral); }
+.s-info     { background: var(--info-bg); color: var(--info); }
 
-  .empty-section { background: var(--white); border: 1px dashed var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 12.5px; }
+/* PHASE PILLS */
+.phase-cell { display: flex; gap: 4px; flex-wrap: wrap; }
+.phase-pill { padding: 2px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 500; }
 
-  .footer-meta { text-align: right; font-size: 10.5px; color: var(--text-muted); margin-top: 1.5rem; padding-top: 0.85rem; border-top: 1px solid var(--border); }
+/* KPI CARD GRID */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 0.75rem; }
+.kpi-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.9rem 1rem; }
+.kpi-name { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+.kpi-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); margin-bottom: 3px; }
+.kpi-val { font-weight: 600; color: var(--text); }
+.kpi-prog-wrap { background: var(--border); border-radius: 99px; height: 4px; margin-top: 6px; overflow: hidden; }
+.kpi-prog-fill { height: 100%; border-radius: 99px; }
+.kpi-actions { font-size: 11px; color: var(--brand-mid); margin-top: 5px; }
 
-  /* TOAST */
-  .toast { position: fixed; bottom: 20px; right: 20px; z-index: 999; background: var(--brand); color: white; border-radius: var(--radius-sm); padding: 11px 17px; font-size: 12.5px; display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateY(8px); transition: all 0.3s; pointer-events: none; max-width: 380px; }
-  .toast.show { opacity: 1; transform: translateY(0); }
-  .toast.err { background: var(--danger); }
+/* IMAGES */
+.image-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr)); gap: 0.85rem; }
+.image-block { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.image-block img { width: 100%; height: 180px; object-fit: cover; display: block; }
+.img-caption { padding: 0.6rem 0.85rem; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: space-between; }
+.img-remove { color: var(--danger); cursor: pointer; font-size: 11px; background: none; border: none; padding: 2px 6px; border-radius: 3px; }
+.img-remove:hover { background: var(--danger-bg); }
+.image-upload-zone { width: 100%; height: 140px; border: 2px dashed var(--border); border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: var(--bg); transition: all 0.2s; gap: 6px; color: var(--text-muted); font-size: 12.5px; }
+.image-upload-zone:hover { border-color: var(--brand-mid); background: var(--brand-light); color: var(--brand); }
+.image-upload-zone input { display: none; }
 
-  /* MODO STANDALONE (fora do monday) */
-  .standalone-banner { background: var(--accent-light); border-bottom: 1px solid var(--accent); padding: 8px 1.25rem; font-size: 12px; color: var(--warning); display: none; align-items: center; gap: 8px; }
-  .standalone-banner.show { display: flex; }
+/* COLUMN DEBUG */
+.debug-box { background: #1a2535; color: #7dd3fc; border-radius: var(--radius); padding: 1rem; font-size: 11px; font-family: monospace; overflow-x: auto; margin-bottom: 1rem; max-height: 300px; overflow-y: auto; }
+.debug-box h4 { color: #fbbf24; margin-bottom: 0.5rem; font-family: var(--font-body); }
 
-  @media print {
-    .topbar, .standalone-banner, .image-upload-zone, .img-remove { display: none !important; }
-    .container { padding: 0; max-width: none; }
-    body { background: white; }
-    .report-header { background: var(--brand) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  }
+.notes-block { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 0.9rem 1.1rem; font-size: 13px; color: var(--text); line-height: 1.65; }
+.empty-section { background: var(--white); border: 1px dashed var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 12.5px; }
+.footer-meta { text-align: right; font-size: 10.5px; color: var(--text-muted); margin-top: 1.5rem; padding-top: 0.85rem; border-top: 1px solid var(--border); }
+
+.standalone-banner { background: var(--accent-light); border-bottom: 1px solid var(--accent); padding: 8px 1.25rem; font-size: 12px; color: var(--warning); display: none; align-items: center; gap: 8px; }
+.standalone-banner.show { display: flex; }
+
+.toast { position: fixed; bottom: 20px; right: 20px; z-index: 999; background: var(--brand); color: white; border-radius: var(--radius-sm); padding: 11px 17px; font-size: 12.5px; display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateY(8px); transition: all 0.3s; pointer-events: none; max-width: 400px; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.err { background: var(--danger); }
+
+/* TOGGLE CHIPS */
+.view-toggle { display: flex; gap: 6px; margin-bottom: 1rem; }
+.chip { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--text-muted); transition: all 0.15s; }
+.chip.active { background: var(--brand); color: white; border-color: var(--brand); }
+.chip:hover:not(.active) { border-color: var(--brand-mid); color: var(--brand); }
+
+@media print {
+  .topbar, .standalone-banner, .image-upload-zone, .img-remove, .view-toggle, .btn-icon[onclick*="reload"], #debug-section { display: none !important; }
+  .container { padding: 0; max-width: none; }
+  body { background: white; }
+  .report-header { background: var(--brand) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .group-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 </style>
 </head>
 <body>
@@ -130,19 +164,20 @@
     </div>
   </div>
   <div class="topbar-actions">
+    <button class="btn-icon" id="debug-btn" onclick="toggleDebug()" style="display:none;">🔍 Colunas</button>
     <button class="btn-icon" onclick="window.print()">🖨 Imprimir / PDF</button>
     <button class="btn-icon" onclick="reload()">↻ Recarregar</button>
   </div>
 </div>
 
 <div class="standalone-banner" id="banner">
-  ⚠️ Esta app foi aberta fora do monday.com — a correr em modo demo. Para usar com dados reais, instala a app dentro de um board do P.A 2026.
+  ⚠️ Aberto fora do monday.com — modo demo. Instala como Board View para dados reais.
 </div>
 
 <div class="container" id="root">
   <div class="loading-overlay">
     <div class="spinner-lg"></div>
-    <div style="color:var(--text-muted);font-size:13px;">A inicializar e ler contexto do monday…</div>
+    <div style="color:var(--text-muted);font-size:13px;">A inicializar monday SDK…</div>
   </div>
 </div>
 
@@ -150,33 +185,43 @@
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════
-//  monday SDK — autenticação automática
-// ═══════════════════════════════════════════════════════════════════════
 const monday = window.mondaySdk ? window.mondaySdk() : null;
 
-// Estado
 let currentBoardId = null;
 let currentBoardName = '';
-let projectImages = []; // {name, dataUrl}
+let projectImages = [];
+let lastBoardData = null;
+let showDebug = false;
+let currentView = 'kpi'; // 'kpi' | 'tasks' | 'all'
 
 // ═══════════════════════════════════════════════════════════════════════
-//  Helpers
+// Helpers UI
 // ═══════════════════════════════════════════════════════════════════════
-function toast(msg, type='ok') {
+function toast(msg, type = 'ok') {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = 'toast show' + (type==='err' ? ' err' : '');
+  t.className = 'toast show' + (type === 'err' ? ' err' : '');
   clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove('show'), 3500);
+  t._t = setTimeout(() => t.classList.remove('show'), 4000);
 }
 
 function statusClass(s) {
   if (!s) return 's-blank';
   const sl = String(s).toLowerCase();
-  if (sl.includes('conclu') || sl.includes('done') || sl.includes('feito') || sl.includes('terminado')) return 's-done';
+  if (sl.includes('conclu') || sl.includes('done') || sl.includes('feito') || sl.includes('terminado') || sl === 'feito') return 's-done';
   if (sl.includes('progress') || sl.includes('progresso') || sl.includes('andamento') || sl.includes('curso') || sl.includes('working')) return 's-progress';
-  if (sl.includes('parado') || sl.includes('stuck') || sl.includes('bloqueado') || sl.includes('suspenso') || sl.includes('atrasado')) return 's-stuck';
-  if (sl.includes('aguardar') || sl.includes('waiting') || sl.includes('planned') || sl.includes('por iniciar')) return 's-waiting';
+  if (sl.includes('parado') || sl.includes('stuck') || sl.includes('bloqueado') || sl.includes('suspenso') || sl.includes('atrasado') || sl.includes('risco')) return 's-stuck';
+  if (sl.includes('aguardar') || sl.includes('waiting') || sl.includes('planned') || sl.includes('não iniciado') || sl.includes('nao iniciado')) return 's-waiting';
+  if (sl.includes('em pro') || sl.includes('em curso')) return 's-progress';
+  return 's-blank';
+}
+
+function phaseClass(s) {
+  if (!s) return 's-blank';
+  const sl = String(s).toLowerCase();
+  if (sl.includes('feito') || sl.includes('done') || sl.includes('conclu')) return 's-done';
+  if (sl.includes('em pro') || sl.includes('andamento') || sl.includes('curso')) return 's-progress';
+  if (sl.includes('parado') || sl.includes('stuck')) return 's-stuck';
   return 's-blank';
 }
 
@@ -187,196 +232,423 @@ function progressColor(p) {
   return '#B03030';
 }
 
+// Pega um valor de coluna por múltiplos nomes possíveis
 function getCol(item, ...titles) {
   for (const title of titles) {
-    const found = item.column_values.find(c =>
-      c.column?.title?.toLowerCase().includes(title.toLowerCase())
+    const tl = title.toLowerCase();
+    const found = item.column_values?.find(c =>
+      c.column?.title?.toLowerCase() === tl ||
+      c.column?.title?.toLowerCase().includes(tl)
     );
-    if (found?.text) return found.text;
+    if (found) {
+      // Tentar text primeiro, depois value parseado
+      if (found.text && found.text.trim()) return found.text.trim();
+      // Para colunas de número/percentagem, o value pode ser JSON
+      if (found.value && found.value !== 'null') {
+        try {
+          const v = JSON.parse(found.value);
+          if (v !== null && v !== undefined) return String(v);
+        } catch(e) {}
+      }
+    }
   }
   return '';
 }
 
+// Pega TODAS as colunas de um item como objeto {titulo: texto}
+function getAllCols(item) {
+  const obj = {};
+  (item.column_values || []).forEach(cv => {
+    const title = cv.column?.title || cv.id;
+    let val = cv.text || '';
+    if (!val && cv.value && cv.value !== 'null') {
+      try { val = String(JSON.parse(cv.value)); } catch(e) {}
+    }
+    obj[title] = val;
+  });
+  return obj;
+}
+
+function toggleDebug() {
+  showDebug = !showDebug;
+  document.getElementById('debug-btn').classList.toggle('active', showDebug);
+  const db = document.getElementById('debug-section');
+  if (db) db.style.display = showDebug ? 'block' : 'none';
+}
+
 // ═══════════════════════════════════════════════════════════════════════
-//  Carregar dados de um board via SDK (sem token!)
+// GraphQL — query COMPLETA que captura grupos + todas as colunas
 // ═══════════════════════════════════════════════════════════════════════
 async function loadBoardData(boardId) {
-  const query = `query {
+  // Primeiro passo: descobrir todas as colunas do board
+  const colQuery = `query {
     boards(ids: [${boardId}]) {
-      id
-      name
-      description
-      items_page(limit: 200) {
-        items {
-          id
-          name
-          column_values {
-            id
-            text
-            value
-            column { title }
-          }
-        }
-      }
+      id name description
+      columns { id title type }
     }
   }`;
 
-  const response = await monday.api(query);
-  const board = response.data?.boards?.[0];
-  if (!board) throw new Error('Board não encontrado ou sem permissões.');
-  return board;
+  const colRes = await monday.api(colQuery);
+  const boardMeta = colRes.data?.boards?.[0];
+  if (!boardMeta) throw new Error('Board não encontrado ou sem permissões.');
+
+  const columns = boardMeta.columns || [];
+
+  // Segundo passo: carregar todos os items com paginação
+  let allItems = [];
+  let cursor = null;
+  let hasMore = true;
+  let page = 0;
+
+  while (hasMore && page < 10) { // máx 10 páginas = 2000 items
+    page++;
+    const limitClause = cursor
+      ? `limit: 200, cursor: "${cursor}"`
+      : `limit: 200`;
+
+    const itemQuery = `query {
+      boards(ids: [${boardId}]) {
+        groups { id title color position }
+        items_page(${limitClause}) {
+          cursor
+          items {
+            id name
+            group { id title color }
+            column_values {
+              id text value
+              column { id title type }
+            }
+          }
+        }
+      }
+    }`;
+
+    const itemRes = await monday.api(itemQuery);
+    const board = itemRes.data?.boards?.[0];
+    if (!board) break;
+
+    const page_data = board.items_page || {};
+    const items = page_data.items || [];
+    allItems = allItems.concat(items);
+
+    if (page_data.cursor && items.length === 200) {
+      cursor = page_data.cursor;
+    } else {
+      hasMore = false;
+    }
+
+    // Guardar grupos da primeira página
+    if (page === 1) {
+      boardMeta.groups = board.groups || [];
+    }
+  }
+
+  boardMeta.allItems = allItems;
+  return boardMeta;
 }
 
-// Transforma um board do monday em estrutura do relatório
-function buildReportFromBoard(board) {
-  const items = board.items_page?.items || [];
+// ═══════════════════════════════════════════════════════════════════════
+// Transformar dados do board em estrutura do relatório
+// ═══════════════════════════════════════════════════════════════════════
+function buildReport(boardData) {
+  const items = boardData.allItems || [];
+  const groups = boardData.groups || [];
+  const columns = boardData.columns || [];
 
-  // Tentar extrair um "item de resumo" (com nome "Resumo", "Sumário", etc.) ou usar o primeiro
-  const summaryItem = items.find(i => /resumo|sum[áa]rio|overview|geral/i.test(i.name)) || items[0];
+  // Agrupar items por grupo
+  const groupMap = {};
+  groups.forEach(g => {
+    groupMap[g.id] = { ...g, items: [] };
+  });
 
-  let info = {
-    desc: board.description || '',
-    status: '—',
-    progress: 0,
-    responsavel: '—',
-    inicio: '—',
-    fim: '—',
-    orcamento: '—',
-    gasto: '—',
-    notas: '',
-    items: []
+  items.forEach(item => {
+    const gid = item.group?.id;
+    if (gid && groupMap[gid]) {
+      groupMap[gid].items.push(item);
+    } else {
+      // Item sem grupo identificado — criar grupo genérico
+      if (!groupMap['__other__']) {
+        groupMap['__other__'] = { id: '__other__', title: 'Geral', color: '#c4c4c4', items: [] };
+      }
+      groupMap['__other__'].items.push(item);
+    }
+  });
+
+  // Ordenar grupos por posição
+  const orderedGroups = Object.values(groupMap).sort((a, b) => {
+    if (a.position !== undefined && b.position !== undefined) return a.position - b.position;
+    return 0;
+  });
+
+  // Detectar colunas importantes automaticamente
+  const colTitles = columns.map(c => c.title.toLowerCase());
+
+  const detectCol = (...keywords) => {
+    for (const kw of keywords) {
+      const found = columns.find(c => c.title.toLowerCase().includes(kw.toLowerCase()));
+      if (found) return found.title;
+    }
+    return null;
   };
 
-  if (summaryItem) {
-    info.status = getCol(summaryItem, 'status', 'estado') || info.status;
-    const rawProg = getCol(summaryItem, 'progress', 'progresso', 'percentagem', 'percent', '%');
-    info.progress = parseInt(rawProg) || 0;
-    info.responsavel = getCol(summaryItem, 'responsável', 'responsavel', 'pessoa', 'owner', 'assignee', 'atribuído', 'pm') || info.responsavel;
-    info.inicio = getCol(summaryItem, 'início', 'inicio', 'start', 'data início') || info.inicio;
-    info.fim = getCol(summaryItem, 'fim', 'end', 'prazo', 'deadline', 'data fim', 'término', 'termino') || info.fim;
-    info.orcamento = getCol(summaryItem, 'orçamento', 'orcamento', 'budget', 'custo') || info.orcamento;
-    info.gasto = getCol(summaryItem, 'gasto', 'spent', 'executado', 'realizado') || info.gasto;
-    info.notas = getCol(summaryItem, 'notas', 'notes', 'observações', 'observacoes', 'comentários') || '';
-  }
+  const colMeta = {
+    responsavel:  detectCol('responsável', 'responsavel', 'pessoa', 'owner', 'assignee', 'atribuído', 'pm'),
+    status:       detectCol('status', 'estado'),
+    progress:     detectCol('progress', 'progresso', 'percentagem', '%'),
+    prazo:        detectCol('prazo', 'deadline', 'data fim', 'término', 'fim', 'end', 'date'),
+    inicio:       detectCol('início', 'inicio', 'start', 'data início', 'data ini'),
+    orcamento:    detectCol('orçamento', 'orcamento', 'budget', 'custo total'),
+    gasto:        detectCol('gasto', 'spent', 'executado', 'realizado', 'custo real'),
+    meta:         detectCol('meta'),
+    kpis:         detectCol('kpis', 'kpi'),
+    acoes:        detectCol('acções', 'acoes', 'acção', 'acao', 'actions'),
+    f1:           detectCol('f1'),
+    f2:           detectCol('f2'),
+    f3:           detectCol('f3'),
+    f4:           detectCol('f4'),
+    percentagens: detectCol('percentagens', 'percentagem total'),
+    preal:        detectCol('p.real', 'preal', 'progresso real', 'real'),
+    pds:          detectCol('pds'),
+    notas:        detectCol('notas', 'notes', 'observações', 'observacoes', 'comentários'),
+  };
 
-  info.items = items.map(it => ({
-    nome: it.name,
-    resp: getCol(it, 'responsável', 'responsavel', 'pessoa', 'owner', 'assignee', 'atribuído') || '—',
-    status: getCol(it, 'status', 'estado') || '—',
-    prazo: getCol(it, 'prazo', 'deadline', 'data', 'date', 'término', 'termino', 'fim', 'end') || '—',
-    kpi: getCol(it, 'kpi') || ''
-  }));
+  // Stats globais
+  const totalItems = items.length;
+  const doneItems = items.filter(i => {
+    const s = getCol(i, ...[colMeta.status, 'status', 'estado'].filter(Boolean));
+    return statusClass(s) === 's-done';
+  }).length;
 
-  // Auto-calcular progresso se não veio do board
-  if (info.progress === 0 && info.items.length) {
-    const done = info.items.filter(i => statusClass(i.status) === 's-done').length;
-    info.progress = Math.round((done / info.items.length) * 100);
-  }
-  // Auto-status
-  if (info.status === '—' && info.items.length) {
-    const stuck = info.items.some(i => statusClass(i.status) === 's-stuck');
-    const inProg = info.items.some(i => statusClass(i.status) === 's-progress');
-    const allDone = info.items.every(i => statusClass(i.status) === 's-done');
-    if (allDone) info.status = 'Concluído';
-    else if (stuck) info.status = 'Parado';
-    else if (inProg) info.status = 'Em Progresso';
-    else info.status = 'A Aguardar';
-  }
-  return info;
+  // Progresso global (média dos progresso%)
+  let totalProg = 0, progCount = 0;
+  items.forEach(i => {
+    const raw = getCol(i, ...[colMeta.progress, 'progresso', 'progress', '%'].filter(Boolean));
+    const n = parseFloat(raw);
+    if (!isNaN(n)) { totalProg += n; progCount++; }
+  });
+  const avgProgress = progCount > 0 ? Math.round(totalProg / progCount) : Math.round((doneItems / (totalItems || 1)) * 100);
+
+  return {
+    name: boardData.name,
+    desc: boardData.description || '',
+    colMeta,
+    columns,
+    orderedGroups,
+    totalItems,
+    doneItems,
+    avgProgress,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  Renderizar relatório
+// Renderizar
 // ═══════════════════════════════════════════════════════════════════════
-function renderReport(boardName, d) {
+function renderReport(data) {
   const root = document.getElementById('root');
-  const p = d.progress || 0;
-  const sc = statusClass(d.status);
-  const items = d.items || [];
+  const { name, desc, colMeta, columns, orderedGroups, totalItems, doneItems, avgProgress } = data;
+  const p = avgProgress;
+
+  // Status global
+  const allDone = doneItems === totalItems && totalItems > 0;
+  const anyStuck = orderedGroups.some(g => g.items.some(i => {
+    const s = getCol(i, ...[colMeta.status, 'status'].filter(Boolean));
+    return statusClass(s) === 's-stuck';
+  }));
+  const globalStatus = allDone ? 'Concluído' : anyStuck ? 'Em Risco' : p > 0 ? 'Em Curso' : 'Não Iniciado';
+  const globalSC = statusClass(globalStatus);
+
+  // Coluna de status global top
+  let statusTop = '';
+  orderedGroups.forEach(g => g.items.forEach(i => {
+    if (!statusTop) statusTop = getCol(i, ...[colMeta.status, 'status', 'estado'].filter(Boolean));
+  }));
+
+  // Render grupos como tabelas KPI expandidas
+  let groupsHTML = '';
+  orderedGroups.forEach((g, gi) => {
+    if (!g.items.length) return;
+
+    const color = g.color || '#c4c4c4';
+    const groupItems = g.items;
+
+    // Detectar se este grupo tem colunas KPI (meta, kpis, f1-f4, preal, pds)
+    const hasKPICols = colMeta.meta || colMeta.kpis || colMeta.f1 || colMeta.preal || colMeta.pds;
+
+    // Construir cabeçalhos dinamicamente com base nas colunas disponíveis
+    const showCols = [];
+    if (colMeta.responsavel) showCols.push({ key: 'responsavel', label: 'Responsável', col: colMeta.responsavel });
+    if (colMeta.meta)        showCols.push({ key: 'meta', label: 'Meta', col: colMeta.meta });
+    if (colMeta.kpis)        showCols.push({ key: 'kpis', label: 'KPIs', col: colMeta.kpis });
+    if (colMeta.progress)    showCols.push({ key: 'progress', label: 'Progresso(%)', col: colMeta.progress });
+    if (colMeta.f1)          showCols.push({ key: 'f1', label: 'F1', col: colMeta.f1 });
+    if (colMeta.f2)          showCols.push({ key: 'f2', label: 'F2', col: colMeta.f2 });
+    if (colMeta.f3)          showCols.push({ key: 'f3', label: 'F3', col: colMeta.f3 });
+    if (colMeta.f4)          showCols.push({ key: 'f4', label: 'F4', col: colMeta.f4 });
+    if (colMeta.percentagens) showCols.push({ key: 'percentagens', label: 'Percentagens', col: colMeta.percentagens });
+    if (colMeta.preal)       showCols.push({ key: 'preal', label: 'P.Real', col: colMeta.preal });
+    if (colMeta.pds)         showCols.push({ key: 'pds', label: 'PDS', col: colMeta.pds });
+    if (colMeta.prazo)       showCols.push({ key: 'prazo', label: 'Prazo', col: colMeta.prazo });
+    if (colMeta.acoes)       showCols.push({ key: 'acoes', label: 'Acções', col: colMeta.acoes });
+    if (colMeta.status)      showCols.push({ key: 'status', label: 'Estado', col: colMeta.status });
+
+    // Fallback: se nenhuma coluna detectada, mostrar todas
+    let fallbackCols = [];
+    if (showCols.length === 0) {
+      // Usar as primeiras colunas significativas
+      fallbackCols = columns.slice(0, 8).map(c => ({ key: c.id, label: c.title, col: c.title }));
+    }
+
+    const activeCols = showCols.length > 0 ? showCols : fallbackCols;
+
+    const theadCells = activeCols.map(c => `<th>${c.label}</th>`).join('');
+
+    const rows = groupItems.map(item => {
+      const allCols = getAllCols(item);
+
+      const cells = activeCols.map(c => {
+        const val = getCol(item, c.col) || '';
+
+        if (c.key === 'status') {
+          const sc = statusClass(val);
+          return `<td><span class="status-pill ${sc}">${val || '—'}</span></td>`;
+        }
+        if (['f1','f2','f3','f4'].includes(c.key)) {
+          const pc = phaseClass(val);
+          return `<td><span class="status-pill ${pc}" style="font-size:10px;">${val || '—'}</span></td>`;
+        }
+        if (c.key === 'progress') {
+          const num = parseFloat(val) || 0;
+          return `<td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="progress-wrap" style="width:60px;margin-top:0;">
+                <div class="progress-fill" style="width:${Math.min(num,100)}%;background:${progressColor(num)};"></div>
+              </div>
+              <span style="font-size:11px;font-weight:600;color:${progressColor(num)};">${val || '—'}</span>
+            </div>
+          </td>`;
+        }
+        if (c.key === 'preal' || c.key === 'percentagens') {
+          const num = parseFloat(val) || 0;
+          return `<td style="font-weight:600;color:${progressColor(num)};">${val || '—'}</td>`;
+        }
+        if (c.key === 'responsavel') {
+          return `<td class="td-muted">${val || '—'}</td>`;
+        }
+        if (c.key === 'acoes') {
+          return `<td style="font-size:11px;color:var(--brand-mid);max-width:180px;">${val || '—'}</td>`;
+        }
+        if (c.key === 'pds') {
+          return `<td style="font-size:11px;max-width:200px;word-break:break-word;">${val || '—'}</td>`;
+        }
+        return `<td class="${!val ? 'td-muted' : ''}">${val || '—'}</td>`;
+      }).join('');
+
+      return `<tr><td class="td-name">${item.name}</td>${cells}</tr>`;
+    }).join('');
+
+    groupsHTML += `
+      <div class="group-block">
+        <div class="group-header" style="background:${color}22;color:${color};border:1px solid ${color}44;border-bottom:none;">
+          <div class="group-color-bar" style="background:${color};"></div>
+          ${g.title}
+          <span style="margin-left:auto;font-size:10px;opacity:0.7;">${groupItems.length} item(s)</span>
+        </div>
+        <div class="items-card no-top-radius" style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Descrição</th>${theadCells}</tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+  });
+
+  // Debug: listar todas as colunas do board
+  const debugHTML = `
+    <div id="debug-section" style="display:${showDebug ? 'block' : 'none'};">
+      <div class="section">
+        <div class="section-title">🔍 Diagnóstico de Colunas</div>
+        <div class="debug-box">
+          <h4>Colunas detectadas no board (${columns.length} total)</h4>
+          <table style="width:100%;border-collapse:collapse;">
+            <tr style="color:#fbbf24;"><th style="text-align:left;padding:2px 8px;">Título</th><th style="text-align:left;padding:2px 8px;">Tipo</th><th style="text-align:left;padding:2px 8px;">Mapeado como</th></tr>
+            ${columns.map(c => {
+              const mapped = Object.entries(colMeta).find(([k,v]) => v === c.title);
+              return `<tr style="border-top:1px solid #2a3a4a;">
+                <td style="padding:2px 8px;">${c.title}</td>
+                <td style="padding:2px 8px;opacity:0.6;">${c.type}</td>
+                <td style="padding:2px 8px;color:${mapped ? '#86efac' : '#6b7280'};">${mapped ? mapped[0] : '—'}</td>
+              </tr>`;
+            }).join('')}
+          </table>
+          <div style="margin-top:8px;color:#fbbf24;">Exemplo do 1.º item:</div>
+          ${orderedGroups[0]?.items[0] ? `<pre style="margin-top:4px;white-space:pre-wrap;">${JSON.stringify(getAllCols(orderedGroups[0].items[0]), null, 2)}</pre>` : '(sem items)'}
+        </div>
+      </div>
+    </div>`;
 
   root.innerHTML = `
     <div class="report-header">
       <div class="report-meta">P.A 2026 — Relatório de Projecto</div>
-      <div class="report-title">${boardName}</div>
-      <div class="report-desc">${d.desc || '<em style="opacity:0.6;">Adicione uma descrição ao board para que apareça aqui.</em>'}</div>
+      <div class="report-title">${name}</div>
+      <div class="report-desc">${desc || '<em style="opacity:0.6;">Sem descrição definida no board.</em>'}</div>
       <div class="report-badges">
-        <span class="badge badge-white">👤 ${d.responsavel || 'N/D'}</span>
-        <span class="badge badge-white">📅 ${d.inicio||'—'} → ${d.fim||'—'}</span>
-        <span class="badge badge-white">🏷 ${d.status||'—'}</span>
+        <span class="badge badge-white">🏷 ${globalStatus}</span>
+        <span class="badge badge-white">📋 ${totalItems} item(s)</span>
+        <span class="badge badge-white">✅ ${doneItems} concluído(s)</span>
       </div>
     </div>
 
     <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-label">Progresso</div>
+        <div class="stat-label">Progresso Médio</div>
         <div class="stat-value">${p}%</div>
         <div class="progress-wrap"><div class="progress-fill" style="width:${p}%;background:${progressColor(p)};"></div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Orçamento</div>
-        <div class="stat-value" style="font-size:17px;">${d.orcamento||'N/D'}</div>
-        <div class="stat-sub">Gasto: ${d.gasto||'N/D'}</div>
+        <div class="stat-label">Tarefas Concluídas</div>
+        <div class="stat-value">${doneItems} / ${totalItems}</div>
+        <div class="stat-sub">de ${totalItems} tarefa(s) total</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Tarefas Concluídas</div>
-        <div class="stat-value">${items.filter(i=>statusClass(i.status)==='s-done').length} / ${items.length}</div>
-        <div class="stat-sub">de ${items.length} tarefa(s) total</div>
+        <div class="stat-label">Grupos</div>
+        <div class="stat-value">${orderedGroups.filter(g => g.items.length > 0).length}</div>
+        <div class="stat-sub">grupos activos</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Estado</div>
-        <div style="margin-top:8px;"><span class="status-pill ${sc}" style="font-size:12.5px;padding:5px 12px;">${d.status||'—'}</span></div>
+        <div style="margin-top:8px;"><span class="status-pill ${globalSC}" style="font-size:12.5px;padding:5px 12px;">${globalStatus}</span></div>
       </div>
     </div>
+
+    ${debugHTML}
 
     <div class="section">
       <div class="section-title">📸 Imagens do Projecto</div>
-      <div id="img-zone">
-        ${renderImages()}
-      </div>
+      <div id="img-zone">${renderImages()}</div>
     </div>
 
     <div class="section">
-      <div class="section-title">📌 Tarefas &amp; Actividades</div>
-      ${items.length ? `
-        <div class="items-card">
-          <table>
-            <thead><tr><th>Tarefa</th><th>Responsável</th><th>Prazo</th><th>Estado</th></tr></thead>
-            <tbody>
-              ${items.map(it=>`
-              <tr>
-                <td>${it.nome}</td>
-                <td style="color:var(--text-muted);">${it.resp||'—'}</td>
-                <td style="color:var(--text-muted);white-space:nowrap;">${it.prazo||'—'}</td>
-                <td><span class="status-pill ${statusClass(it.status)}">${it.status||'—'}</span></td>
-              </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-      ` : `<div class="empty-section">Este board ainda não tem tarefas registadas.</div>`}
+      <div class="section-title">📌 Tarefas &amp; Indicadores</div>
+      ${groupsHTML || '<div class="empty-section">Sem tarefas registadas.</div>'}
     </div>
-
-    ${d.notas ? `
-    <div class="section">
-      <div class="section-title">📝 Notas &amp; Observações</div>
-      <div class="notes-block">${d.notas}</div>
-    </div>` : ''}
 
     <div class="footer-meta">
-      Relatório gerado em ${new Date().toLocaleDateString('pt-PT',{day:'2-digit',month:'long',year:'numeric'})} às ${new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'})} — Sistema de Gestão P.A 2026
+      Relatório gerado em ${new Date().toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' })} às ${new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })} — Sistema de Gestão P.A 2026
     </div>
   `;
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+// Images
+// ═══════════════════════════════════════════════════════════════════════
 function renderImages() {
   if (!projectImages.length) {
-    return `
-      <label class="image-upload-zone">
-        <input type="file" accept="image/*" multiple onchange="handleImages(this)">
-        <span style="font-size:28px;">🖼</span>
-        <span>Clique para adicionar imagens ou screenshots</span>
-        <span style="font-size:10px;opacity:0.6;">PNG, JPG — múltiplas imagens suportadas</span>
-      </label>
-    `;
+    return `<label class="image-upload-zone">
+      <input type="file" accept="image/*" multiple onchange="handleImages(this)">
+      <span style="font-size:28px;">🖼</span>
+      <span>Clique para adicionar imagens</span>
+      <span style="font-size:10px;opacity:0.6;">PNG, JPG — múltiplas imagens suportadas</span>
+    </label>`;
   }
   return `
     <div class="image-grid">
@@ -393,8 +665,7 @@ function renderImages() {
     <label class="image-upload-zone" style="height:80px;margin-top:0.85rem;">
       <input type="file" accept="image/*" multiple onchange="handleImages(this)">
       <span>＋ Adicionar mais imagens</span>
-    </label>
-  `;
+    </label>`;
 }
 
 function handleImages(input) {
@@ -406,26 +677,26 @@ function handleImages(input) {
     reader.onload = e => {
       projectImages.push({ name: file.name, dataUrl: e.target.result });
       pending--;
-      if (pending === 0) document.getElementById('img-zone').innerHTML = renderImages();
+      if (pending === 0) {
+        const z = document.getElementById('img-zone');
+        if (z) z.innerHTML = renderImages();
+        saveImages();
+      }
     };
     reader.readAsDataURL(file);
   });
-
-  // Persistir imagens no storage do monday (associadas ao board)
-  if (monday && currentBoardId) {
-    setTimeout(() => {
-      monday.storage.instance.setItem(`images_${currentBoardId}`, JSON.stringify(projectImages))
-        .catch(err => console.warn('Não foi possível guardar imagens:', err));
-    }, 500);
-  }
 }
 
 function removeImage(idx) {
   projectImages.splice(idx, 1);
-  document.getElementById('img-zone').innerHTML = renderImages();
+  const z = document.getElementById('img-zone');
+  if (z) z.innerHTML = renderImages();
+  saveImages();
+}
+
+function saveImages() {
   if (monday && currentBoardId) {
-    monday.storage.instance.setItem(`images_${currentBoardId}`, JSON.stringify(projectImages))
-      .catch(() => {});
+    monday.storage.instance.setItem(`images_${currentBoardId}`, JSON.stringify(projectImages)).catch(() => {});
   }
 }
 
@@ -433,80 +704,52 @@ async function loadStoredImages(boardId) {
   if (!monday) return;
   try {
     const res = await monday.storage.instance.getItem(`images_${boardId}`);
-    if (res?.data?.value) {
-      projectImages = JSON.parse(res.data.value);
-    }
-  } catch (e) { /* silencioso */ }
+    if (res?.data?.value) projectImages = JSON.parse(res.data.value);
+  } catch (e) {}
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  DEMO (quando aberto fora do monday)
+// Demo
 // ═══════════════════════════════════════════════════════════════════════
 function showDemo() {
   document.getElementById('banner').classList.add('show');
-  document.getElementById('board-sub').textContent = 'Modo Demo — Sem ligação ao monday';
-  renderReport('PROJ.1: CC-ANGOSAT-2 (DEMO)', {
-    desc: "Centro de Controlo ANGOSAT-2 — instalação, configuração e operacionalização.",
-    status: "Em Progresso", progress: 60,
-    responsavel: "Eng. António Sousa", inicio: "Jan 2026", fim: "Jun 2026",
-    orcamento: "USD 1.200.000", gasto: "USD 720.000",
-    items: [
-      { nome: "Instalação do hardware de controlo", resp: "J. Fernandes", status: "Concluído", prazo: "28 Fev 2026" },
-      { nome: "Configuração do software de telemetria", resp: "M. Silva", status: "Em Progresso", prazo: "30 Abr 2026" },
-      { nome: "Testes de comunicação com ANGOSAT-2", resp: "R. Correia", status: "Em Progresso", prazo: "15 Mai 2026" },
-      { nome: "Formação da equipa operacional", resp: "A. Sousa", status: "A Aguardar", prazo: "01 Jun 2026" },
-    ],
-    notas: "O projecto encontra-se dentro do cronograma previsto."
-  });
+  document.getElementById('board-sub').textContent = 'Modo Demo';
+  document.getElementById('root').innerHTML = `
+    <div class="state-card">
+      <div class="icon">🔌</div>
+      <h3>Modo Demo — Sem ligação ao monday</h3>
+      <p>Esta app deve ser instalada como <strong>Board View</strong> num board do P.A 2026. Fora do monday, não é possível carregar dados reais.</p>
+      <p style="margin-top:0.75rem;font-size:11px;opacity:0.7;">Abre esta app dentro do monday.com num board com itens para ver o relatório completo.</p>
+    </div>`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  INIT
+// Main
 // ═══════════════════════════════════════════════════════════════════════
-async function init() {
-  if (!monday) {
-    showDemo();
-    return;
-  }
-
-  // Ler contexto do monday (board actual, user, etc.)
-  monday.listen('context', async (res) => {
-    const ctx = res.data;
-    if (!ctx) return;
-    currentBoardId = ctx.boardId || ctx.boardIds?.[0];
-    if (!currentBoardId) {
-      document.getElementById('root').innerHTML = `
-        <div class="state-card">
-          <div class="icon">📋</div>
-          <h3>Sem contexto de board</h3>
-          <p>Esta vista deve ser usada dentro de um board do monday.com. Adicione-a como Board View num projecto do P.A 2026.</p>
-        </div>`;
-      return;
-    }
-    await loadAndRender();
-  });
-
-  // Fallback: se em 2 seg não recebermos contexto, assumimos modo demo
-  setTimeout(() => {
-    if (!currentBoardId) showDemo();
-  }, 2500);
-}
-
 async function loadAndRender() {
   try {
     document.getElementById('root').innerHTML = `
       <div class="loading-overlay">
         <div class="spinner-lg"></div>
-        <div style="color:var(--text-muted);font-size:13px;">A carregar dados do board…</div>
+        <div style="color:var(--text-muted);font-size:13px;">A carregar todos os dados do board…</div>
       </div>`;
-    const board = await loadBoardData(currentBoardId);
-    currentBoardName = board.name;
-    document.getElementById('board-sub').textContent = `${board.name} · P.A 2026`;
+
+    const boardData = await loadBoardData(currentBoardId);
+    lastBoardData = boardData;
+    currentBoardName = boardData.name;
+    document.getElementById('board-sub').textContent = `${boardData.name} · P.A 2026`;
+    document.getElementById('debug-btn').style.display = 'flex';
+
     await loadStoredImages(currentBoardId);
-    const reportData = buildReportFromBoard(board);
-    renderReport(board.name, reportData);
-    toast(`✓ ${board.items_page?.items?.length || 0} item(ns) carregado(s)`);
+
+    const reportData = buildReport(boardData);
+    renderReport(reportData);
+
+    const total = boardData.allItems?.length || 0;
+    const pages = Math.ceil(total / 200);
+    toast(`✓ ${total} item(s) carregado(s)${pages > 1 ? ` (${pages} páginas)` : ''}`);
   } catch (e) {
+    console.error(e);
     document.getElementById('root').innerHTML = `
       <div class="state-card">
         <div class="icon">⚠️</div>
@@ -519,10 +762,36 @@ async function loadAndRender() {
 
 function reload() {
   if (currentBoardId) loadAndRender();
-  else if (!monday) showDemo();
+  else showDemo();
 }
 
-// Arranque
+async function init() {
+  if (!monday) {
+    showDemo();
+    return;
+  }
+
+  monday.listen('context', async (res) => {
+    const ctx = res.data;
+    if (!ctx) return;
+    currentBoardId = ctx.boardId || ctx.boardIds?.[0];
+    if (!currentBoardId) {
+      document.getElementById('root').innerHTML = `
+        <div class="state-card">
+          <div class="icon">📋</div>
+          <h3>Sem contexto de board</h3>
+          <p>Adicione esta vista a um board do P.A 2026.</p>
+        </div>`;
+      return;
+    }
+    await loadAndRender();
+  });
+
+  setTimeout(() => {
+    if (!currentBoardId) showDemo();
+  }, 3000);
+}
+
 init();
 </script>
 </body>
